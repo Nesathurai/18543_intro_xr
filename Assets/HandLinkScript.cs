@@ -33,7 +33,6 @@ public class BoneRotationCopier : MonoBehaviour
             entry.Value.position = entry.Key.position;
             entry.Value.rotation = entry.Key.rotation;
         }
-
         
         // Iterate through each bone in the source model.
         // foreach (Transform sourceBone in sourceModel.GetComponentsInChildren<Transform>())
