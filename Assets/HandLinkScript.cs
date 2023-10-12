@@ -1,12 +1,32 @@
 using UnityEngine;
+using System;
 using System.Collections.Generic; 
+// using System.Serializable;
+// using System.Run
+// using System.Text.Json;
+// using System.Text.Json.Serialization;
 
+
+// [System.Serializable]
+// public class SaveData // Do not inherit from MonoBehaviour here
+// {
+//     // public List<CharacterData> Characters;
+//     public GameObject model;
+// }
 
 public class BoneRotationCopier : MonoBehaviour
 {
     public GameObject sourceModel; // Reference to the model you want to copy bone rotations from.
     public GameObject targetModel; // Reference to the model you want to copy bone rotations to.
     IDictionary<Transform, Transform> boneMap = new Dictionary<Transform, Transform>();
+    
+    // public void Save(SaveData data)
+    // {
+    //     // Serialize to json
+    //     var jsonData = JsonUtility.ToJson(data);
+
+    //     // Now save the json locally, to GPGS, etc. as you choose
+    // }
     void Start()
     {
         boneMap.Add(sourceModel.transform, targetModel.transform);
@@ -17,11 +37,14 @@ public class BoneRotationCopier : MonoBehaviour
             {
                 if(sourceBone.name == targetBone.name){
                     boneMap.Add(sourceBone, targetBone);
+                    // Debug.Log(sourceBone.name);
                     // targetBone.transform.localRotation = sourceBone.transform.localRotation;
                     continue;
                 }
             }
         }
+        
+        // SaveData myData;
     }
 
     void Update()
