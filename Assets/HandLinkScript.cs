@@ -53,13 +53,28 @@ public class BoneRotationCopier : MonoBehaviour
             string jsonData = JsonConvert.SerializeObject(boneData, new JsonSerializerSettings {ReferenceLoopHandling = ReferenceLoopHandling.Ignore});
             File.WriteAllText(path, jsonData);
             Debug.Log("SAVED JSON\n"); 
+            Debug.Log("COMPARE: " + compare(boneData, boneData, 0.1f));
         }
+        
         foreach(KeyValuePair<Transform, Transform> entry in boneMap)
         {
             entry.Value.position = entry.Key.position;
             entry.Value.rotation = entry.Key.rotation;
         }
     }
+    
+    bool compare(IDictionary<string, BoneData> boneData0, IDictionary<string, BoneData> boneData1, float delta){
+        // returns true if bone differences less than some delta 
+        float del = 0;
+        foreach(KeyValuePair<string, BoneData> entry in boneData0)
+        {
+            del += (entry.Value.position - boneData1[entry.Key].position).magnitude;
+            // to subtract quaternions must use inverse 
+            del += (Quaternion.Inverse(entry.Value.rotation) * boneData1[entry.Key].rotation).eulerAngles.magnitude;
+        }
+        return del < delta;
+    }
+
 }
 
 public class BoneData {
