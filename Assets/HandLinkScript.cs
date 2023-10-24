@@ -1,35 +1,19 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic; 
-// using System.Serializable;
-// using System.Run
-// using System.Text.Json;
-// using System.Text.Json.Serialization;
-
-
-// [System.Serializable]
-// public class SaveData // Do not inherit from MonoBehaviour here
-// {
-//     // public List<CharacterData> Characters;
-//     public GameObject model;
-// }
+using System.Collections;
+using Newtonsoft.Json;
 
 public class BoneRotationCopier : MonoBehaviour
 {
     public GameObject sourceModel; // Reference to the model you want to copy bone rotations from.
     public GameObject targetModel; // Reference to the model you want to copy bone rotations to.
     IDictionary<Transform, Transform> boneMap = new Dictionary<Transform, Transform>();
-    
-    // public void Save(SaveData data)
-    // {
-    //     // Serialize to json
-    //     var jsonData = JsonUtility.ToJson(data);
-
-    //     // Now save the json locally, to GPGS, etc. as you choose
-    // }
     void Start()
     {
+        IDictionary<string, BoneData> boneData = new Dictionary<string, BoneData>();
         boneMap.Add(sourceModel.transform, targetModel.transform);
+        boneData.Add(sourceModel.name, new BoneData(sourceModel.transform.position, sourceModel.transform.rotation));
         // Iterate through each bone in the source model.
         foreach (Transform sourceBone in sourceModel.GetComponentsInChildren<Transform>())
         {
@@ -37,15 +21,18 @@ public class BoneRotationCopier : MonoBehaviour
             {
                 if(sourceBone.name == targetBone.name){
                     boneMap.Add(sourceBone, targetBone);
+                    boneData.Add(sourceBone.name, new BoneData(sourceBone.transform.position, sourceBone.transform.rotation));
                     // Debug.Log(sourceBone.name);
                     // targetBone.transform.localRotation = sourceBone.transform.localRotation;
                     continue;
                 }
             }
         }
-        
+        string jsonData = JsonConvert.SerializeObject(boneData, new JsonSerializerSettings {ReferenceLoopHandling = ReferenceLoopHandling.Ignore});
+        Debug.Log(jsonData);
         // SaveData myData;
     }
+
 
     void Update()
     {
@@ -69,4 +56,15 @@ public class BoneRotationCopier : MonoBehaviour
         //     }
         // }
     }
+}
+
+public class BoneData {
+
+    public BoneData(Vector3 Position, Quaternion Rotation){
+        position = Position;
+        rotation = Rotation;
+    }
+
+    public Vector3 position;
+    public Quaternion rotation;
 }
