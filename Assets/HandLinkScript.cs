@@ -12,7 +12,6 @@ public class BoneRotationCopier : MonoBehaviour
     // map from transform to transform between source and target hand
     IDictionary<Transform, Transform> boneMap = new Dictionary<Transform, Transform>();
     // this stores the transform data to json for a single hand pose
-    // IDictionary<string, BoneData> onePose = new Dictionary<string, BoneData>();
     IDictionary<string, BoneData> currentPose = new Dictionary<string, BoneData>();
     // this stores the boneData for all hand poses
     IDictionary<string, IDictionary<string, BoneData>> allPoses = new Dictionary<string, IDictionary<string, BoneData>>();
@@ -36,15 +35,19 @@ public class BoneRotationCopier : MonoBehaviour
     {
         // save pose
         if(Input.GetKeyDown("s") || Input.GetKey("s")){
+            Debug.Log("STARTING SAVE");
             save();
+            Debug.Log("ENDING SAVE");
         }
         // compare pose
-        if(Input.GetKeyDown("f") || Input.GetKey("f")){
+        if(Input.GetKeyDown("c") || Input.GetKey("c")){
             // get the closest pose 
-            string path = @"C:\Users\ahnes\OneDrive\Documents\GitHub\18543_intro_xr\data\boneData2.json";
-            string loaded = File.ReadAllText(path); 
-            var aPose = JsonConvert.DeserializeObject<IDictionary<string, BoneData>>(loaded);
-            Debug.Log("COMPARE: " + compare(currentPose, aPose));
+            Debug.Log("STARTING LOAD");
+            Debug.Log(loadAll());
+            Debug.Log("ENDING LOAD");
+            Debug.Log("STARTING COMPAREALL");
+            Debug.Log(compareAll());
+            Debug.Log("ENDING COMPAREALL");
         }
         
         foreach(KeyValuePair<Transform, Transform> entry in boneMap)
@@ -63,23 +66,23 @@ public class BoneRotationCopier : MonoBehaviour
             // to subtract quaternions must use inverse 
             del += (Quaternion.Inverse(entry.Value.rotation) * onePose1[entry.Key].rotation).eulerAngles.magnitude;
         }
-        Debug.Log(del); 
+        Debug.Log("DEL: " + del); 
         return del;
     }
 
     bool save(){
-        if(Input.GetKeyDown("f") || Input.GetKey("f")){
+        // if(Input.GetKeyDown("f") || Input.GetKey("f")){
             // IDictionary<string, BoneData> currentPose = new Dictionary<string, BoneData>();
-            string path = @"C:\Users\ahnes\OneDrive\Documents\GitHub\18543_intro_xr\data\boneData2.json";
-            currentPose.Clear(); 
-            foreach(KeyValuePair<Transform, Transform> entry in boneMap)
-            {
-                currentPose.Add(entry.Value.name, new BoneData(entry.Value.transform.position + new Vector3(0.1f,0.1f,0.1f), entry.Value.transform.rotation));
-            }
-            string jsonData = JsonConvert.SerializeObject(currentPose, new JsonSerializerSettings {ReferenceLoopHandling = ReferenceLoopHandling.Ignore});
-            File.WriteAllText(path, jsonData);
-            Debug.Log("SAVED JSON\n"); 
+        string path = @"C:\Users\ahnes\OneDrive\Documents\GitHub\18543_intro_xr\data\boneData2.json";
+        currentPose.Clear(); 
+        foreach(KeyValuePair<Transform, Transform> entry in boneMap)
+        {
+            currentPose.Add(entry.Value.name, new BoneData(entry.Value.transform.position + new Vector3(0.1f,0.1f,0.1f), entry.Value.transform.rotation));
         }
+        string jsonData = JsonConvert.SerializeObject(currentPose, new JsonSerializerSettings {ReferenceLoopHandling = ReferenceLoopHandling.Ignore});
+        File.WriteAllText(path, jsonData);
+        Debug.Log("SAVED JSON\n"); 
+        // }
         return true; 
     }
 
