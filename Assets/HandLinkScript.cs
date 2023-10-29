@@ -34,19 +34,21 @@ public class BoneRotationCopier : MonoBehaviour
     void Update()
     {
         // save pose
-        if(Input.GetKeyDown("s") || Input.GetKey("s")){
+        // if(Input.GetKeyDown("s") || Input.GetKey("s")){
+        if(Input.GetKeyDown("s")){
             Debug.Log("STARTING SAVE");
             save();
             Debug.Log("ENDING SAVE");
         }
         // compare pose
-        if(Input.GetKeyDown("c") || Input.GetKey("c")){
+        // if(Input.GetKeyDown("c") || Input.GetKey("c")){
+        if(Input.GetKeyDown("c")){
             // get the closest pose 
             Debug.Log("STARTING LOAD");
             Debug.Log(loadAll());
             Debug.Log("ENDING LOAD");
             Debug.Log("STARTING COMPAREALL");
-            Debug.Log(compareAll());
+            Debug.Log("FOUND POSE: " + compareAll());
             Debug.Log("ENDING COMPAREALL");
         }
         
@@ -62,6 +64,8 @@ public class BoneRotationCopier : MonoBehaviour
         float del = 0;
         foreach(KeyValuePair<string, BoneData> entry in onePose0)
         {
+            // Debug.Log("Debugging0: " + entry.Key);
+            // Debug.Log("Debugging1: " + onePose1[entry.Key]);
             del += (entry.Value.position - onePose1[entry.Key].position).magnitude;
             // to subtract quaternions must use inverse 
             del += (Quaternion.Inverse(entry.Value.rotation) * onePose1[entry.Key].rotation).eulerAngles.magnitude;
@@ -73,7 +77,7 @@ public class BoneRotationCopier : MonoBehaviour
     bool save(){
         // if(Input.GetKeyDown("f") || Input.GetKey("f")){
             // IDictionary<string, BoneData> currentPose = new Dictionary<string, BoneData>();
-        string path = @"C:\Users\ahnes\OneDrive\Documents\GitHub\18543_intro_xr\data\boneData2.json";
+        string path = @"C:\Users\ahnes\OneDrive\Documents\GitHub\18543_intro_xr\data\boneData20.json";
         currentPose.Clear(); 
         foreach(KeyValuePair<Transform, Transform> entry in boneMap)
         {
@@ -89,10 +93,20 @@ public class BoneRotationCopier : MonoBehaviour
     bool loadAll(){
         string path = @"C:\Users\ahnes\OneDrive\Documents\GitHub\18543_intro_xr\data\";
         string[] files = Directory.GetFiles(path);
+        Debug.Log("FILES: " + files);
+        int count = 0; 
         foreach (string file in files) {
+            Debug.Log("C: " + count);
+            count++; 
             string loaded = File.ReadAllText(file); 
             var onePose = JsonConvert.DeserializeObject<IDictionary<string, BoneData>>(loaded);
-            allPoses.Add(file, onePose);
+            if(allPoses.ContainsKey(file)){
+                allPoses[file] = onePose;
+                // Debug.Log("FOUNd DUPLICATE");
+            }
+            else{
+                allPoses.Add(file, onePose);
+            }
             Debug.Log("FPATH: " + file);
         }
         return true;
