@@ -15,6 +15,7 @@ public class BoneRotationCopier : MonoBehaviour
     IDictionary<string, BoneData> currentPose = new Dictionary<string, BoneData>();
     // this stores the boneData for all hand poses
     IDictionary<string, IDictionary<string, BoneData>> allPoses = new Dictionary<string, IDictionary<string, BoneData>>();
+    int saveCount = 0; 
     void Start()
     {
         boneMap.Add(sourceModel.transform, targetModel.transform);
@@ -34,14 +35,12 @@ public class BoneRotationCopier : MonoBehaviour
     void Update()
     {
         // save pose
-        // if(Input.GetKeyDown("s") || Input.GetKey("s")){
         if(Input.GetKeyDown("s")){
             Debug.Log("STARTING SAVE");
             save();
             Debug.Log("ENDING SAVE");
         }
         // compare pose
-        // if(Input.GetKeyDown("c") || Input.GetKey("c")){
         if(Input.GetKeyDown("c")){
             // get the closest pose 
             Debug.Log("STARTING LOAD");
@@ -75,9 +74,7 @@ public class BoneRotationCopier : MonoBehaviour
     }
 
     bool save(){
-        // if(Input.GetKeyDown("f") || Input.GetKey("f")){
-            // IDictionary<string, BoneData> currentPose = new Dictionary<string, BoneData>();
-        string path = @"C:\Users\ahnes\OneDrive\Documents\GitHub\18543_intro_xr\data\boneData20.json";
+        string path = @"C:\Users\ahnes\OneDrive\Documents\GitHub\18543_intro_xr\data\boneData" + saveCount + ".json";
         currentPose.Clear(); 
         foreach(KeyValuePair<Transform, Transform> entry in boneMap)
         {
@@ -86,7 +83,7 @@ public class BoneRotationCopier : MonoBehaviour
         string jsonData = JsonConvert.SerializeObject(currentPose, new JsonSerializerSettings {ReferenceLoopHandling = ReferenceLoopHandling.Ignore});
         File.WriteAllText(path, jsonData);
         Debug.Log("SAVED JSON\n"); 
-        // }
+        saveCount++; 
         return true; 
     }
 
@@ -108,6 +105,7 @@ public class BoneRotationCopier : MonoBehaviour
                 allPoses.Add(file, onePose);
             }
             Debug.Log("FPATH: " + file);
+            Debug.Log("FNAME: " + Path.GetFileNameWithoutExtension(file));
         }
         return true;
     }
