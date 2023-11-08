@@ -43,7 +43,6 @@ public class handDummy : MonoBehaviour
                 Debug.Log("LOADING: " + file);
                 string loaded = File.ReadAllText(file); 
                 var onePose = JsonConvert.DeserializeObject<IDictionary<string, BoneData>>(loaded);
-                // Debug.Log(onePose[""]);
                 foreach (Transform targetBone in targetModel.GetComponentsInChildren<Transform>())
                 {
                     if(onePose.ContainsKey(targetBone.name)){
@@ -56,5 +55,4 @@ public class handDummy : MonoBehaviour
             count++; 
         }
     }
-
 }
