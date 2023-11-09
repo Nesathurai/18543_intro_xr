@@ -28,6 +28,8 @@ public class Compute : MonoBehaviour
     {
         boneMap = handLinkScript.boneMap;
         targetModel = handLinkScript.targetModel;
+        // generate text in create visuals 
+        createVisuals.Start();
     }
 
     // Update is called once per frame
@@ -73,7 +75,7 @@ public class Compute : MonoBehaviour
         File.WriteAllText(path, jsonData);
         Debug.Log("SAVED JSON\n"); 
         // fix the text generation, this will be very slow
-        createVisuals.Start();
+        createVisuals.Update();
         createVisuals.ShowVisuals(fname);
         saveCount++; 
         return true; 
@@ -109,9 +111,11 @@ public class Compute : MonoBehaviour
         {
             // Debug.Log("pos: " + (entry.Value.position - onePose1[entry.Key].position).magnitude);
             // Debug.Log("rot: " + (Quaternion.Inverse(entry.Value.rotation) * onePose1[entry.Key].rotation).eulerAngles.magnitude);
+            Single rot = (onePose1[entry.Key].rotation * Quaternion.Inverse(entry.Value.rotation)).normalized.eulerAngles.magnitude % 360;
+            Debug.Log(entry.Key + " -> " + Math.Pow((entry.Value.position - onePose1[entry.Key].position).magnitude, 2).ToString() + " | " + rot);
             del += (Single) Math.Pow((entry.Value.position - onePose1[entry.Key].position).magnitude, 2);
             // to subtract quaternions must use inverse 
-            del += (Single) Math.Pow((Quaternion.Inverse(entry.Value.rotation) * onePose1[entry.Key].rotation).eulerAngles.magnitude / 360, 2);
+            del += rot;
         }
         Debug.Log("DEL: " + del); 
         return del;
@@ -136,8 +140,7 @@ public class Compute : MonoBehaviour
             }
             Debug.Log("FNAME: " + fname);
         }
-        // generate text in create visuals 
-        createVisuals.Start();
+        
         return true;
     }
 
@@ -157,6 +160,7 @@ public class Compute : MonoBehaviour
                 poseName = pose.Key;
             }
         }
+        createVisuals.Update();
         createVisuals.ShowVisuals(poseName);
         return poseName;
     }

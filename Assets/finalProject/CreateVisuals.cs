@@ -63,7 +63,6 @@ namespace Oculus.Interaction.Samples
             this.AssertField(Hmd, nameof(Hmd));
             this.AssertField(_poseActiveVisualPrefab, nameof(_poseActiveVisualPrefab));
             allPoses = compute.allPoses;
-            Debug.Log("all pose size: " + allPoses.Count);
             activeVisuals.Clear();
 
             // _poseActiveVisuals = new GameObject[allPoses.Count];
@@ -88,6 +87,20 @@ namespace Oculus.Interaction.Samples
                 // int poseNumber = i;
                 // _poses[i].WhenSelected += () => ShowVisuals(poseNumber);
                 // _poses[i].WhenUnselected += () => HideVisuals(poseNumber);
+            }
+        }
+        public void Update()
+        {
+            this.AssertField(Hmd, nameof(Hmd));
+            this.AssertField(_poseActiveVisualPrefab, nameof(_poseActiveVisualPrefab));
+            Debug.Log("all pose size: " + allPoses.Count);
+            foreach(KeyValuePair<string, IDictionary<string, BoneData>> pose in allPoses){
+                if(!activeVisuals.ContainsKey(pose.Key)){
+                    activeVisuals.Add(pose.Key, new GameObject());
+                }
+                activeVisuals[pose.Key] = Instantiate(_poseActiveVisualPrefab);
+                text.text = pose.Key;
+                activeVisuals[pose.Key].SetActive(false);
             }
         }
         public void ShowVisuals(string poseName)
