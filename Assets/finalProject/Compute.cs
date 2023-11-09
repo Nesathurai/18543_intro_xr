@@ -27,43 +27,21 @@ public class Compute : MonoBehaviour
     void Start()
     {
         boneMap = handLinkScript.boneMap;
-        // text = GetComponentInChildren<TextMeshPro>();
-        // text.text = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!";
-        // text.gameObject.SetActive(false);
         targetModel = handLinkScript.targetModel;
-        // poseDisplay.Start();
     }
 
     // Update is called once per frame
     void Update()
     {
-        // int i = 0;
-        // foreach(KeyValuePair<Transform, Transform> entry in boneMap)
-        // {
-        //     if(i == 0){
-        //         Debug.Log("__COMPUTE__ " + entry.Value.transform.rotation);
-        //         // currentPose.Add(entry.Value.name, new BoneData(entry.Value.transform.position + new Vector3(0.1f,0.1f,0.1f), entry.Value.transform.rotation));
-        //     }
-        //     ++i;
-        // }
         // save pose
         if(Input.GetKeyDown("s") || Input.GetKeyDown(KeyCode.Keypad1)){
             Debug.Log("STARTING SAVE");
             save();
             Debug.Log("ENDING SAVE");
         }
-        // if(Input.GetKeyDown("9")){
-        //     text.gameObject.SetActive(true);
-        // }
-        // load pose
-        if(Input.GetKeyDown("l") || Input.GetKeyDown(KeyCode.Keypad2)){
-            Debug.Log("STARTING LOAD");
-            load();
-            Debug.Log("ENDING LOAD");
-        }
-        
-        // compare pose
-        if(Input.GetKeyDown("c") || Input.GetKeyDown(KeyCode.Keypad3)){
+
+        // load all poses and compare 
+        if(Input.GetKeyDown("c") || Input.GetKeyDown(KeyCode.Keypad2)){
             // get the closest pose 
             Debug.Log("STARTING LOAD");
             Debug.Log(loadAll());
@@ -83,9 +61,20 @@ public class Compute : MonoBehaviour
             // currentPose.Add(entry.Value.name, new BoneData(entry.Value.transform.position + new Vector3(0.1f,0.1f,0.1f), entry.Value.transform.rotation));
             currentPose.Add(entry.Value.name, new BoneData(entry.Value.transform.position, entry.Value.transform.rotation));
         }
+        // now add this to all poses (so that the display text can pop up)
+        string fname = "boneData"+saveCount.ToString();
+        if(allPoses.ContainsKey(fname)){
+            allPoses[fname] = currentPose;
+        }
+        else{
+            allPoses.Add(fname, currentPose);
+        }
         string jsonData = JsonConvert.SerializeObject(currentPose, new JsonSerializerSettings {ReferenceLoopHandling = ReferenceLoopHandling.Ignore});
         File.WriteAllText(path, jsonData);
         Debug.Log("SAVED JSON\n"); 
+        // fix the text generation, this will be very slow
+        createVisuals.Start();
+        createVisuals.ShowVisuals(fname);
         saveCount++; 
         return true; 
     }
@@ -93,7 +82,7 @@ public class Compute : MonoBehaviour
         // take a file from the disk and load it into a hand dummy 
         string path = @"C:\Users\ahnes\OneDrive\Documents\GitHub\18543_intro_xr\data\";
         string[] files = Directory.GetFiles(path);
-        Debug.Log("FILES: " + files);
+        // Debug.Log("FILES: " + files);
         int count = 0; 
         foreach (string file in files) {
             Debug.Log("C: " + count);
@@ -118,9 +107,11 @@ public class Compute : MonoBehaviour
         float del = 0;
         foreach(KeyValuePair<string, BoneData> entry in onePose0)
         {
-            del += (entry.Value.position - onePose1[entry.Key].position).magnitude;
+            // Debug.Log("pos: " + (entry.Value.position - onePose1[entry.Key].position).magnitude);
+            // Debug.Log("rot: " + (Quaternion.Inverse(entry.Value.rotation) * onePose1[entry.Key].rotation).eulerAngles.magnitude);
+            del += (Single) Math.Pow((entry.Value.position - onePose1[entry.Key].position).magnitude, 2);
             // to subtract quaternions must use inverse 
-            del += (Quaternion.Inverse(entry.Value.rotation) * onePose1[entry.Key].rotation).eulerAngles.magnitude;
+            del += (Single) Math.Pow((Quaternion.Inverse(entry.Value.rotation) * onePose1[entry.Key].rotation).eulerAngles.magnitude / 360, 2);
         }
         Debug.Log("DEL: " + del); 
         return del;
@@ -147,7 +138,6 @@ public class Compute : MonoBehaviour
         }
         // generate text in create visuals 
         createVisuals.Start();
-        
         return true;
     }
 
@@ -158,7 +148,6 @@ public class Compute : MonoBehaviour
         currentPose.Clear(); 
         foreach(KeyValuePair<Transform, Transform> entry in boneMap)
         {
-            // currentPose.Add(entry.Value.name, new BoneData(entry.Value.transform.position + new Vector3(0.1f,0.1f,0.1f), entry.Value.transform.rotation));
             currentPose.Add(entry.Value.name, new BoneData(entry.Value.transform.position, entry.Value.transform.rotation));
         }
         foreach(KeyValuePair<string, IDictionary<string, BoneData>> pose in allPoses){
