@@ -23,36 +23,8 @@ public class handDummy : MonoBehaviour
 
     void Update()
     {
-        // save pose
-        if(Input.GetKeyDown("l")){
-            Debug.Log("STARTING LOAD");
-            load();
-            Debug.Log("ENDING LOAD");
-        }
+        
     }
     
-    void load(){
-        // take a file from the disk and load it into a hand dummy 
-        string path = @"C:\Users\ahnes\OneDrive\Documents\GitHub\18543_intro_xr\data\";
-        string[] files = Directory.GetFiles(path);
-        Debug.Log("FILES: " + files);
-        int count = 0; 
-        foreach (string file in files) {
-            Debug.Log("C: " + count);
-            if(count == 0){
-                Debug.Log("LOADING: " + file);
-                string loaded = File.ReadAllText(file); 
-                var onePose = JsonConvert.DeserializeObject<IDictionary<string, BoneData>>(loaded);
-                foreach (Transform targetBone in targetModel.GetComponentsInChildren<Transform>())
-                {
-                    if(onePose.ContainsKey(targetBone.name)){
-                        Debug.Log("LOADED__");
-                        targetBone.position = onePose[targetBone.name].position;
-                        targetBone.rotation = onePose[targetBone.name].rotation;
-                    }
-                }
-            }
-            count++; 
-        }
-    }
+    
 }
