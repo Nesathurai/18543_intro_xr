@@ -12,7 +12,7 @@ public class Compute : MonoBehaviour
     public Oculus.Interaction.Samples.PoseUseSample poseDisplay;
     
     // this stores the boneData for all hand poses
-    IDictionary<string, IDictionary<string, BoneData>> allPoses = new Dictionary<string, IDictionary<string, BoneData>>();
+    public IDictionary<string, IDictionary<string, BoneData>> allPoses = new Dictionary<string, IDictionary<string, BoneData>>();
 
     // this stores the transform data to json for a single hand pose
     public IDictionary<Transform, Transform> boneMap = new Dictionary<Transform, Transform>();
@@ -29,7 +29,7 @@ public class Compute : MonoBehaviour
         text.text = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!";
         text.gameObject.SetActive(false);
         targetModel = handLinkScript.targetModel;
-        
+        // poseDisplay.Start();
     }
 
     // Update is called once per frame
