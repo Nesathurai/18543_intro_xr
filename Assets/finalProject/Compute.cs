@@ -11,6 +11,8 @@ public class Compute : MonoBehaviour
     public BoneRotationCopier handLinkScript;
     public Oculus.Interaction.Samples.PoseUseSample poseDisplay;
     
+    public Oculus.Interaction.Samples.CreateVisuals createVisuals;
+    
     // this stores the boneData for all hand poses
     public IDictionary<string, IDictionary<string, BoneData>> allPoses = new Dictionary<string, IDictionary<string, BoneData>>();
 
@@ -20,14 +22,14 @@ public class Compute : MonoBehaviour
     IDictionary<string, BoneData> currentPose = new Dictionary<string, BoneData>();
     private GameObject targetModel; // Reference to the model you want to copy bone rotations to.
     int saveCount = 0; 
-    TextMeshPro text;
+    public TextMeshPro text;
     // Start is called before the first frame update
     void Start()
     {
         boneMap = handLinkScript.boneMap;
-        text = GetComponentInChildren<TextMeshPro>();
-        text.text = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!";
-        text.gameObject.SetActive(false);
+        // text = GetComponentInChildren<TextMeshPro>();
+        // text.text = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA!";
+        // text.gameObject.SetActive(false);
         targetModel = handLinkScript.targetModel;
         // poseDisplay.Start();
     }
@@ -45,7 +47,7 @@ public class Compute : MonoBehaviour
         //     ++i;
         // }
         // save pose
-        if(Input.GetKeyDown("s") || Input.GetKeyDown("1")){
+        if(Input.GetKeyDown("s") || Input.GetKeyDown(KeyCode.Keypad1)){
             Debug.Log("STARTING SAVE");
             save();
             Debug.Log("ENDING SAVE");
@@ -54,14 +56,14 @@ public class Compute : MonoBehaviour
         //     text.gameObject.SetActive(true);
         // }
         // load pose
-        if(Input.GetKeyDown("l") || Input.GetKeyDown("2")){
+        if(Input.GetKeyDown("l") || Input.GetKeyDown(KeyCode.Keypad2)){
             Debug.Log("STARTING LOAD");
             load();
             Debug.Log("ENDING LOAD");
         }
         
         // compare pose
-        if(Input.GetKeyDown("c") || Input.GetKeyDown("3")){
+        if(Input.GetKeyDown("c") || Input.GetKeyDown(KeyCode.Keypad3)){
             // get the closest pose 
             Debug.Log("STARTING LOAD");
             Debug.Log(loadAll());
@@ -78,7 +80,8 @@ public class Compute : MonoBehaviour
         currentPose.Clear(); 
         foreach(KeyValuePair<Transform, Transform> entry in boneMap)
         {
-            currentPose.Add(entry.Value.name, new BoneData(entry.Value.transform.position + new Vector3(0.1f,0.1f,0.1f), entry.Value.transform.rotation));
+            // currentPose.Add(entry.Value.name, new BoneData(entry.Value.transform.position + new Vector3(0.1f,0.1f,0.1f), entry.Value.transform.rotation));
+            currentPose.Add(entry.Value.name, new BoneData(entry.Value.transform.position, entry.Value.transform.rotation));
         }
         string jsonData = JsonConvert.SerializeObject(currentPose, new JsonSerializerSettings {ReferenceLoopHandling = ReferenceLoopHandling.Ignore});
         File.WriteAllText(path, jsonData);
@@ -101,7 +104,6 @@ public class Compute : MonoBehaviour
                 foreach (Transform targetBone in targetModel.GetComponentsInChildren<Transform>())
                 {
                     if(onePose.ContainsKey(targetBone.name)){
-                        Debug.Log("LOADED__");
                         targetBone.position = onePose[targetBone.name].position;
                         targetBone.rotation = onePose[targetBone.name].rotation;
                     }
@@ -116,8 +118,6 @@ public class Compute : MonoBehaviour
         float del = 0;
         foreach(KeyValuePair<string, BoneData> entry in onePose0)
         {
-            // Debug.Log("Debugging0: " + entry.Key);
-            // Debug.Log("Debugging1: " + onePose1[entry.Key]);
             del += (entry.Value.position - onePose1[entry.Key].position).magnitude;
             // to subtract quaternions must use inverse 
             del += (Quaternion.Inverse(entry.Value.rotation) * onePose1[entry.Key].rotation).eulerAngles.magnitude;
@@ -134,24 +134,33 @@ public class Compute : MonoBehaviour
         foreach (string file in files) {
             Debug.Log("C: " + count);
             count++; 
+            string fname = Path.GetFileNameWithoutExtension(file);
             string loaded = File.ReadAllText(file); 
             var onePose = JsonConvert.DeserializeObject<IDictionary<string, BoneData>>(loaded);
-            if(allPoses.ContainsKey(file)){
-                allPoses[file] = onePose;
-                // Debug.Log("FOUNd DUPLICATE");
+            if(allPoses.ContainsKey(fname)){
+                allPoses[fname] = onePose;
             }
             else{
-                allPoses.Add(file, onePose);
+                allPoses.Add(fname, onePose);
             }
-            Debug.Log("FPATH: " + file);
-            Debug.Log("FNAME: " + Path.GetFileNameWithoutExtension(file));
+            Debug.Log("FNAME: " + fname);
         }
+        // generate text in create visuals 
+        createVisuals.Start();
+        
         return true;
     }
 
     string compareAll(){
         float minDel = 999999999999.0f;
         string poseName = "NULL";
+        // grab current pose to compare against
+        currentPose.Clear(); 
+        foreach(KeyValuePair<Transform, Transform> entry in boneMap)
+        {
+            // currentPose.Add(entry.Value.name, new BoneData(entry.Value.transform.position + new Vector3(0.1f,0.1f,0.1f), entry.Value.transform.rotation));
+            currentPose.Add(entry.Value.name, new BoneData(entry.Value.transform.position, entry.Value.transform.rotation));
+        }
         foreach(KeyValuePair<string, IDictionary<string, BoneData>> pose in allPoses){
             float del = compare(pose.Value, currentPose);
             if(del < minDel){
@@ -159,6 +168,7 @@ public class Compute : MonoBehaviour
                 poseName = pose.Key;
             }
         }
+        createVisuals.ShowVisuals(poseName);
         return poseName;
     }
 }

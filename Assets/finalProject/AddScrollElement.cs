@@ -12,7 +12,7 @@ public class AddScrollElement : MonoBehaviour
     void Start()
     {
         int count = 0; 
-        Debug.LogError(gameObject);
+        // Debug.LogError(gameObject);
         // Debug.Log("__found__: " + PrefabStage.IsPartOfPrefabContents(gameObject));
         // foreach (GameObject trans in gameObject.GetComponentsInChildren<GameObject>())
         foreach (Transform child in transform)

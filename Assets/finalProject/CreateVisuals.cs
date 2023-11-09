@@ -52,19 +52,23 @@ namespace Oculus.Interaction.Samples
         {
             Hmd = _hmd as IHmd;
         }
+        
         public Compute compute; 
-        IDictionary<string, IDictionary<string, BoneData>> allPoses = new Dictionary<string, IDictionary<string, BoneData>>();
+        // IDictionary<string, IDictionary<string, BoneData>> allPoses = new Dictionary<string, IDictionary<string, BoneData>>();
+        IDictionary<string, IDictionary<string, BoneData>> allPoses;
         IDictionary<string, GameObject> activeVisuals = new Dictionary<string, GameObject>();
-        void Start()
+        public TextMeshPro text;
+        public void Start()
         {
             this.AssertField(Hmd, nameof(Hmd));
             this.AssertField(_poseActiveVisualPrefab, nameof(_poseActiveVisualPrefab));
             allPoses = compute.allPoses;
             Debug.Log("all pose size: " + allPoses.Count);
+            activeVisuals.Clear();
 
             // _poseActiveVisuals = new GameObject[allPoses.Count];
             foreach(KeyValuePair<string, IDictionary<string, BoneData>> pose in allPoses){
-                if(allPoses.ContainsKey(pose.Key)){
+                if(activeVisuals.ContainsKey(pose.Key)){
                     // allPoses[pose.Key] = onePose;
                     // pose.Value, currentPose
                     // pose.Key
@@ -73,7 +77,8 @@ namespace Oculus.Interaction.Samples
                     activeVisuals.Add(pose.Key, new GameObject());
                 }
                 activeVisuals[pose.Key] = Instantiate(_poseActiveVisualPrefab);
-                activeVisuals[pose.Key].GetComponentInChildren<TextMeshPro>().text = pose.Key;
+                // activeVisuals[pose.Key].GetComponentInChildren<TextMeshPro>().text = pose.Key;
+                text.text = pose.Key;
                 activeVisuals[pose.Key].SetActive(false);
                 // _poseActiveVisuals[i] = Instantiate(_poseActiveVisualPrefab);
                 // _poseActiveVisuals[i].GetComponentInChildren<TextMeshPro>().text = _poses[i].name;
@@ -85,7 +90,7 @@ namespace Oculus.Interaction.Samples
                 // _poses[i].WhenUnselected += () => HideVisuals(poseNumber);
             }
         }
-        void ShowVisuals(string poseName)
+        public void ShowVisuals(string poseName)
         {
             if (!Hmd.TryGetRootPose(out Pose hmdPose))
             {
@@ -101,7 +106,11 @@ namespace Oculus.Interaction.Samples
 
             // var hands = _poses[poseNumber].GetComponents<HandRef>();
             // TODO: check that the hands are being grabbed properly 
-            var hands = gameObject.GetComponentsInParent<HandRef>();
+            var hands = gameObject.GetComponents<HandRef>();
+            if(hands.Length == 0){
+                Debug.Log("was not able to find hands");
+                return; 
+            }
             Vector3 visualsPos = Vector3.zero;
             foreach (var hand in hands)
             {
@@ -109,8 +118,17 @@ namespace Oculus.Interaction.Samples
                 Vector3 forward = hand.Handedness == Handedness.Left ? wristPose.right : -wristPose.right;
                 visualsPos += wristPose.position + forward * .15f + Vector3.up * .02f;
             }
-            activeVisuals[poseName].transform.position = visualsPos / hands.Length;
-            activeVisuals[poseName].gameObject.SetActive(true);
+            // make sure that visual pose is not nan
+            Debug.Log("hands length: " + hands.Length);
+            Debug.Log("vispos: " + visualsPos);
+            if(!Single.IsNaN(visualsPos[0]) && !Single.IsNaN(visualsPos[1]) && !Single.IsNaN(visualsPos[2]) && !Single.IsNaN(hands.Length)){
+                activeVisuals[poseName].transform.position = visualsPos / hands.Length;
+                activeVisuals[poseName].gameObject.SetActive(true);
+            }
+            else{
+                Debug.Log("visual pos was NaN; no display text ");
+            }
+
         }
 
         void HideVisuals(string poseName)
