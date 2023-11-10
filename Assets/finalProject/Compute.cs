@@ -49,11 +49,9 @@ public class Compute : MonoBehaviour
             Debug.Log(loadAll());
             Debug.Log("ENDING LOAD");
             Debug.Log("STARTING COMPAREALL");
-            // _poseActiveVisuals[i].GetComponentInChildren<TextMeshPro>().text = _poses[i].name;
             Debug.Log("FOUND POSE: " + compareAll());
             Debug.Log("ENDING COMPAREALL");
         }
-        
     }
     bool save(){
         string path = @"C:\Users\ahnes\OneDrive\Documents\GitHub\18543_intro_xr\data\boneData" + saveCount + ".json";
@@ -73,9 +71,9 @@ public class Compute : MonoBehaviour
         }
         string jsonData = JsonConvert.SerializeObject(currentPose, new JsonSerializerSettings {ReferenceLoopHandling = ReferenceLoopHandling.Ignore});
         File.WriteAllText(path, jsonData);
-        Debug.Log("SAVED JSON\n"); 
+        // Debug.Log("SAVED JSON\n"); 
         // fix the text generation, this will be very slow
-        createVisuals.Update();
+        createVisuals.ManualUpdate();
         createVisuals.ShowVisuals(fname);
         saveCount++; 
         return true; 
@@ -87,7 +85,6 @@ public class Compute : MonoBehaviour
         // Debug.Log("FILES: " + files);
         int count = 0; 
         foreach (string file in files) {
-            Debug.Log("C: " + count);
             if(count == 0){
                 Debug.Log("LOADING: " + file);
                 string loaded = File.ReadAllText(file); 
@@ -105,17 +102,23 @@ public class Compute : MonoBehaviour
     }
 
     float compare(IDictionary<string, BoneData> onePose0, IDictionary<string, BoneData> onePose1){
+        // good reference: https://www.youtube.com/watch?v=lBzwUKQ3tbw
         // returns true if bone differences less than some delta 
         float del = 0;
         foreach(KeyValuePair<string, BoneData> entry in onePose0)
         {
             // Debug.Log("pos: " + (entry.Value.position - onePose1[entry.Key].position).magnitude);
             // Debug.Log("rot: " + (Quaternion.Inverse(entry.Value.rotation) * onePose1[entry.Key].rotation).eulerAngles.magnitude);
-            Single rot = (onePose1[entry.Key].rotation * Quaternion.Inverse(entry.Value.rotation)).normalized.eulerAngles.magnitude % 360;
-            Debug.Log(entry.Key + " -> " + Math.Pow((entry.Value.position - onePose1[entry.Key].position).magnitude, 2).ToString() + " | " + rot);
-            del += (Single) Math.Pow((entry.Value.position - onePose1[entry.Key].position).magnitude, 2);
+            // Single rot = (onePose1[entry.Key].rotation * Quaternion.Inverse(entry.Value.rotation)).normalized.eulerAngles.magnitude % 360;
+            // Vector3 curr = entry.Value.Transform.InverseTransformPoint(onePose1[entry.Key].position);
+            // Debug.Log("curr: " + curr);
+            // del += Vector3.Distance(curr, onePose1[entry.Key].position);
+            // Debug.Log(entry.Key + " -> " + Math.Pow((entry.Value.position - onePose1[entry.Key].position).magnitude, 2).ToString() + " | " + rot);
+            // del += (Single) Math.Pow((entry.Value.position - onePose1[entry.Key].position).magnitude, 2);
+            // Debug.Log("dist: " + Vector3.Distance(entry.Value.position, onePose1[entry.Key].position));
+            del += (Single) Math.Pow(Vector3.Distance(entry.Value.position, onePose1[entry.Key].position),2);
             // to subtract quaternions must use inverse 
-            del += rot;
+            // del += rot;
         }
         Debug.Log("DEL: " + del); 
         return del;
@@ -124,10 +127,8 @@ public class Compute : MonoBehaviour
     bool loadAll(){
         string path = @"C:\Users\ahnes\OneDrive\Documents\GitHub\18543_intro_xr\data\";
         string[] files = Directory.GetFiles(path);
-        Debug.Log("FILES: " + files);
         int count = 0; 
         foreach (string file in files) {
-            Debug.Log("C: " + count);
             count++; 
             string fname = Path.GetFileNameWithoutExtension(file);
             string loaded = File.ReadAllText(file); 
@@ -160,7 +161,7 @@ public class Compute : MonoBehaviour
                 poseName = pose.Key;
             }
         }
-        createVisuals.Update();
+        createVisuals.ManualUpdate();
         createVisuals.ShowVisuals(poseName);
         return poseName;
     }

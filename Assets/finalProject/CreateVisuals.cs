@@ -64,43 +64,29 @@ namespace Oculus.Interaction.Samples
             this.AssertField(_poseActiveVisualPrefab, nameof(_poseActiveVisualPrefab));
             allPoses = compute.allPoses;
             activeVisuals.Clear();
-
-            // _poseActiveVisuals = new GameObject[allPoses.Count];
-            foreach(KeyValuePair<string, IDictionary<string, BoneData>> pose in allPoses){
-                if(activeVisuals.ContainsKey(pose.Key)){
-                    // allPoses[pose.Key] = onePose;
-                    // pose.Value, currentPose
-                    // pose.Key
-                }
-                else{
-                    activeVisuals.Add(pose.Key, new GameObject());
-                }
-                activeVisuals[pose.Key] = Instantiate(_poseActiveVisualPrefab);
-                // activeVisuals[pose.Key].GetComponentInChildren<TextMeshPro>().text = pose.Key;
-                text.text = pose.Key;
-                activeVisuals[pose.Key].SetActive(false);
-                // _poseActiveVisuals[i] = Instantiate(_poseActiveVisualPrefab);
-                // _poseActiveVisuals[i].GetComponentInChildren<TextMeshPro>().text = _poses[i].name;
-                // _poseActiveVisuals[i].GetComponentInChildren<ParticleSystemRenderer>().material = _onSelectIcons[i];
-                // _poseActiveVisuals[i].SetActive(false);
-
-                // int poseNumber = i;
-                // _poses[i].WhenSelected += () => ShowVisuals(poseNumber);
-                // _poses[i].WhenUnselected += () => HideVisuals(poseNumber);
-            }
+            // foreach(KeyValuePair<string, IDictionary<string, BoneData>> pose in allPoses){
+            //     if(!activeVisuals.ContainsKey(pose.Key)){
+            //         activeVisuals.Add(pose.Key, new GameObject());
+            //     }
+            //     activeVisuals[pose.Key] = Instantiate(_poseActiveVisualPrefab);
+            //     text.text = pose.Key;
+            //     activeVisuals[pose.Key].SetActive(false);
+            // }
         }
-        public void Update()
+        public void ManualUpdate()
         {
             this.AssertField(Hmd, nameof(Hmd));
             this.AssertField(_poseActiveVisualPrefab, nameof(_poseActiveVisualPrefab));
             Debug.Log("all pose size: " + allPoses.Count);
+            Debug.Log("active visuals size: " + activeVisuals.Count);
             foreach(KeyValuePair<string, IDictionary<string, BoneData>> pose in allPoses){
                 if(!activeVisuals.ContainsKey(pose.Key)){
                     activeVisuals.Add(pose.Key, new GameObject());
+                    activeVisuals[pose.Key] = Instantiate(_poseActiveVisualPrefab);
+                    // activeVisuals[pose.Key].gameObject._text = pose.Key;
+                    text.text = pose.Key;
+                    activeVisuals[pose.Key].SetActive(false);
                 }
-                activeVisuals[pose.Key] = Instantiate(_poseActiveVisualPrefab);
-                text.text = pose.Key;
-                activeVisuals[pose.Key].SetActive(false);
             }
         }
         public void ShowVisuals(string poseName)
@@ -113,11 +99,7 @@ namespace Oculus.Interaction.Samples
             Vector3 spawnSpot = hmdPose.position + hmdPose.forward;
             activeVisuals[poseName].transform.position = spawnSpot;
             activeVisuals[poseName].transform.LookAt(2 * activeVisuals[poseName].transform.position - hmdPose.position);
-            // Vector3 spawnSpot = hmdPose.position + hmdPose.forward;
-            // _poseActiveVisuals[poseNumber].transform.position = spawnSpot;
-            // _poseActiveVisuals[poseNumber].transform.LookAt(2 * _poseActiveVisuals[poseNumber].transform.position - hmdPose.position);
 
-            // var hands = _poses[poseNumber].GetComponents<HandRef>();
             // TODO: check that the hands are being grabbed properly 
             var hands = gameObject.GetComponents<HandRef>();
             if(hands.Length == 0){
@@ -132,8 +114,6 @@ namespace Oculus.Interaction.Samples
                 visualsPos += wristPose.position + forward * .15f + Vector3.up * .02f;
             }
             // make sure that visual pose is not nan
-            Debug.Log("hands length: " + hands.Length);
-            Debug.Log("vispos: " + visualsPos);
             if(!Single.IsNaN(visualsPos[0]) && !Single.IsNaN(visualsPos[1]) && !Single.IsNaN(visualsPos[2]) && !Single.IsNaN(hands.Length)){
                 activeVisuals[poseName].transform.position = visualsPos / hands.Length;
                 activeVisuals[poseName].gameObject.SetActive(true);
