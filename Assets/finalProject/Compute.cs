@@ -19,7 +19,7 @@ public class Compute : MonoBehaviour
     // this stores the transform data to json for a single hand pose
     public IDictionary<Transform, Transform> boneMap = new Dictionary<Transform, Transform>();
     // this stores the transform data to json for a single hand pose
-    IDictionary<string, BoneData> currentPose = new Dictionary<string, BoneData>();
+    public IDictionary<string, BoneData> currentPose = new Dictionary<string, BoneData>();
     private GameObject targetModel; // Reference to the model you want to copy bone rotations to.
     int saveCount = 0; 
     public TextMeshPro text;
@@ -120,7 +120,7 @@ public class Compute : MonoBehaviour
             // to subtract quaternions must use inverse 
             // del += rot;
         }
-        Debug.Log("DEL: " + del); 
+        // Debug.Log("DEL: " + del); 
         return del;
     }
     
