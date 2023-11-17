@@ -56,6 +56,7 @@ public class handDummy : MonoBehaviour
                     }
                 }
                 newDummyHand.transform.position = place.position;
+                newDummyHand.transform.rotation = place.rotation;
 
                 // }
             }

@@ -23,6 +23,7 @@ public class Compute : MonoBehaviour
     private GameObject targetModel; // Reference to the model you want to copy bone rotations to.
     int saveCount = 0; 
     public TextMeshPro text;
+    public Transform hmd;
     // Start is called before the first frame update
     void Start()
     {
@@ -72,41 +73,42 @@ public class Compute : MonoBehaviour
         string jsonData = JsonConvert.SerializeObject(currentPose, new JsonSerializerSettings {ReferenceLoopHandling = ReferenceLoopHandling.Ignore});
         File.WriteAllText(path, jsonData);
         // Debug.Log("SAVED JSON\n"); 
-        // fix the text generation, this will be very slow
+        load(fname);
         createVisuals.ManualUpdate();
         createVisuals.ShowVisuals(fname);
         saveCount++; 
         return true; 
     }
-    void load(){
-        // take a file from the disk and load it into a hand dummy 
-        string path = @"C:\Users\ahnes\OneDrive\Documents\GitHub\18543_intro_xr\data\";
-        string[] files = Directory.GetFiles(path);
-        // Debug.Log("FILES: " + files);
-        int count = 0; 
-        foreach (string file in files) {
-            if(count == 0){
-                Debug.Log("LOADING: " + file);
-                string loaded = File.ReadAllText(file); 
-                var onePose = JsonConvert.DeserializeObject<IDictionary<string, BoneData>>(loaded);
-                foreach (Transform targetBone in targetModel.GetComponentsInChildren<Transform>())
-                {
-                    if(onePose.ContainsKey(targetBone.name)){
-                        targetBone.position = onePose[targetBone.name].position;
-                        targetBone.rotation = onePose[targetBone.name].rotation;
-                    }
-                }
-            }
-            count++; 
+    bool load(string fname){
+        string path = @"C:\Users\ahnes\OneDrive\Documents\GitHub\18543_intro_xr\data\" + fname + ".json";
+        string loaded = File.ReadAllText(path); 
+        var onePose = JsonConvert.DeserializeObject<IDictionary<string, BoneData>>(loaded);
+        if(allPoses.ContainsKey(fname)){
+            allPoses[fname] = onePose;
         }
+        else{
+            allPoses.Add(fname, onePose);
+        }
+        Debug.Log("FNAME load: " + fname);
+        return true;
     }
-
     float compare(IDictionary<string, BoneData> onePose0, IDictionary<string, BoneData> onePose1){
         // good reference: https://www.youtube.com/watch?v=lBzwUKQ3tbw
         // returns true if bone differences less than some delta 
         float del = 0;
         foreach(KeyValuePair<string, BoneData> entry in onePose0)
         {
+            // TODO: do inverse transform here?
+            // Vector3 p0 = hmd.InverseTransformPoint(entry.Value.position);
+            // Vector3 p1 = hmd.InverseTransformPoint(onePose1[entry.Key].position);
+            // Debug.Log(hmd);
+            // Debug.Log("val0: " + entry.Value.position);
+            // Debug.Log("val1: " + onePose1[entry.Key].position);
+            // Debug.Log("invt0: " + p0);
+            // Debug.Log("invt1: " + p1);
+            // float d = (float) Math.Pow(Vector3.Distance(p0, p1), 2);
+            // Debug.Log("del: " + d); 
+            // del += d;
             // Debug.Log("pos: " + (entry.Value.position - onePose1[entry.Key].position).magnitude);
             // Debug.Log("rot: " + (Quaternion.Inverse(entry.Value.rotation) * onePose1[entry.Key].rotation).eulerAngles.magnitude);
             // Single rot = (onePose1[entry.Key].rotation * Quaternion.Inverse(entry.Value.rotation)).normalized.eulerAngles.magnitude % 360;
@@ -114,9 +116,9 @@ public class Compute : MonoBehaviour
             // Debug.Log("curr: " + curr);
             // del += Vector3.Distance(curr, onePose1[entry.Key].position);
             // Debug.Log(entry.Key + " -> " + Math.Pow((entry.Value.position - onePose1[entry.Key].position).magnitude, 2).ToString() + " | " + rot);
-            // del += (Single) Math.Pow((entry.Value.position - onePose1[entry.Key].position).magnitude, 2);
+            del += (Single) Math.Pow((entry.Value.position - onePose1[entry.Key].position).magnitude, 2);
             // Debug.Log("dist: " + Vector3.Distance(entry.Value.position, onePose1[entry.Key].position));
-            del += (Single) Math.Pow(Vector3.Distance(entry.Value.position, onePose1[entry.Key].position),2);
+            // del += (Single) Math.Pow(Vector3.Distance(entry.Value.position, onePose1[entry.Key].position),2);
             // to subtract quaternions must use inverse 
             // del += rot;
         }

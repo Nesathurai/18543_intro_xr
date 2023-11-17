@@ -28,6 +28,7 @@ public class BoneRotationCopier : MonoBehaviour
         }
     }
 
+    // TODO: save the inverse pose?
     void Update()
     {
         foreach(KeyValuePair<Transform, Transform> entry in boneMap)
@@ -38,7 +39,6 @@ public class BoneRotationCopier : MonoBehaviour
             // entry.Value.rotation = entry.Key.rotation;
         }
     }
-    
 }
 
 public class BoneData {
