@@ -78,7 +78,7 @@ public class HandDummy : MonoBehaviour
         Vector3 offset = new Vector3(0, (float) 0.1, 0);
         newDummyHand.gameObject.transform.position = place.position + offset;
         newDummyHand.gameObject.transform.rotation = place.rotation;
-        // newDummyHand.gameObject.transform.Rotate(0,90,0);
+        newDummyHand.gameObject.transform.Rotate(0,90,-90);
         placei++;
     }
 

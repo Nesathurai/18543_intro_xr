@@ -114,6 +114,7 @@ public class Compute : MonoBehaviour
             // Debug.Log("invt0: " + p0);
             // Debug.Log("invt1: " + p1);
             float d = (float) Math.Pow(Vector3.Distance(p0, p1), 2);
+            del += d; 
             // Debug.Log("del: " + d); 
 
             // del += d;
@@ -130,7 +131,7 @@ public class Compute : MonoBehaviour
             // to subtract quaternions must use inverse 
             // del += rot;
         }
-        // Debug.Log("DEL: " + del); 
+        Debug.Log("DEL: " + del); 
         return del;
     }
     
