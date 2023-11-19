@@ -1693,6 +1693,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 90
       objectReference: {fileID: 0}
+    - target: {fileID: 65702495048144492, guid: 89cbc2242055ee74dbd060ba9917d7d8, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 89cbc2242055ee74dbd060ba9917d7d8, type: 3}
       propertyPath: m_Name
       value: handDummy
@@ -8120,11 +8124,6 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     vectorLabel1_3: W
---- !u!1 &815663769 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 89cbc2242055ee74dbd060ba9917d7d8, type: 3}
-  m_PrefabInstance: {fileID: 1574892397}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &856739615
 GameObject:
   m_ObjectHideFlags: 0
@@ -13533,7 +13532,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sourceModel: {fileID: 789083146}
-  targetModel: {fileID: 815663769}
+  targetModel: {fileID: 865449071}
 --- !u!114 &1884099583
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13551,6 +13550,7 @@ MonoBehaviour:
   createVisuals: {fileID: 645652279}
   text: {fileID: 594793716}
   hmd: {fileID: 148436150}
+  handDummy: {fileID: 865449073}
 --- !u!1 &1900040039
 GameObject:
   m_ObjectHideFlags: 0

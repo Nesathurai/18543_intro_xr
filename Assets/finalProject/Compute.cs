@@ -24,6 +24,7 @@ public class Compute : MonoBehaviour
     int saveCount = 0; 
     public TextMeshPro text;
     public Transform hmd;
+    public HandDummy handDummy; 
     // Start is called before the first frame update
     void Start()
     {
@@ -50,7 +51,11 @@ public class Compute : MonoBehaviour
             Debug.Log(loadAll());
             // Debug.Log("ENDING LOAD");
             // Debug.Log("STARTING COMPAREALL");
-            Debug.Log("FOUND POSE: " + compareAll());
+            string poseFound = compareAll();
+            Debug.Log("FOUND POSE: " + poseFound);
+            if(poseFound != "NULL"){
+                handDummy.displayHand(poseFound);
+            }
             // Debug.Log("ENDING COMPAREALL");
         }
     }
@@ -103,13 +108,14 @@ public class Compute : MonoBehaviour
             // Debug.Log("hmd pose: " + hmd.position); 
             Vector3 p0 = hmd.InverseTransformPoint(entry.Value.position);
             Vector3 p1 = hmd.InverseTransformPoint(onePose1[entry.Key].position);
-            Debug.Log(hmd);
-            Debug.Log("val0: " + entry.Value.position);
-            Debug.Log("val1: " + onePose1[entry.Key].position);
-            Debug.Log("invt0: " + p0);
-            Debug.Log("invt1: " + p1);
+            // Debug.Log(hmd);
+            // Debug.Log("val0: " + entry.Value.position);
+            // Debug.Log("val1: " + onePose1[entry.Key].position);
+            // Debug.Log("invt0: " + p0);
+            // Debug.Log("invt1: " + p1);
             float d = (float) Math.Pow(Vector3.Distance(p0, p1), 2);
-            Debug.Log("del: " + d); 
+            // Debug.Log("del: " + d); 
+
             // del += d;
             // Debug.Log("pos: " + (entry.Value.position - onePose1[entry.Key].position).magnitude);
             // Debug.Log("rot: " + (Quaternion.Inverse(entry.Value.rotation) * onePose1[entry.Key].rotation).eulerAngles.magnitude);
