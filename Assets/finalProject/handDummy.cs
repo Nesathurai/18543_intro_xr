@@ -15,53 +15,49 @@ public class handDummy : MonoBehaviour
     IDictionary<string, BoneData> currentPose;
     public Compute compute; 
     // this stores the boneData for all hand poses
-    IDictionary<string, IDictionary<string, BoneData>> allPoses = new Dictionary<string, IDictionary<string, BoneData>>();
+    // IDictionary<string, IDictionary<string, BoneData>> allPoses = new Dictionary<string, IDictionary<string, BoneData>>();
+    IDictionary<string, IDictionary<string, BoneData>> allPoses;
     int saveCount = 0; 
     public GameObject placeHolder; 
     Transform[] placeHolderChildren;
     void Start()
     {
-        // get the locations of the placeholders to replace 
-        // for(int i = 0; i < placeHolder.transform.childCount; ++i){
-        //     Transform place = placeHolder.transform.GetChild(i);
-        //     // Debug.Log("placeholder: " + place.name);
-        //     placeHolderChildren[i] = place;
-        // }
-        currentPose = compute.currentPose;
+        allPoses = compute.allPoses;
     }
 
     void Update()
     {
-        if(Input.GetKeyDown("u") || Input.GetKeyDown(KeyCode.Keypad3)){
-            for(int i = 0; i < placeHolder.transform.childCount; ++i){
-                Transform place = placeHolder.transform.GetChild(i);
-                Debug.Log("placeholder: " + place.name);
-                // placeHolderChildren[i] = place;
-                // if(allPoses.Count >= i){
-                GameObject newDummyHand = Instantiate(targetModel);
-                Debug.Log("made new dummy hand");
-                // now go through the bones in new dummy hand and assign the correct positions 
-                // boneMap.Add(sourceModel.transform, targetModel.transform);
-                // Iterate through each bone in the source model.
-                foreach (Transform sourceBone in sourceModel.GetComponentsInChildren<Transform>())
-                {
-                    foreach (Transform targetBone in newDummyHand.GetComponentsInChildren<Transform>())
+        if(Input.GetKeyDown("u") || Input.GetKeyDown(KeyCode.Keypad3) || Input.GetKeyDown("3")){
+            int numPlaces = placeHolder.transform.childCount; 
+            Debug.Log("child count: " + numPlaces);
+            int i = 0;
+            foreach(KeyValuePair<string, IDictionary<string, BoneData>> pose in allPoses){
+                i = i % numPlaces;
+                if(i == saveCount){
+                    Transform place = placeHolder.transform.GetChild(i);
+                    Debug.Log("placeholder: " + place.name);
+                    // GameObject newDummyHand = Instantiate(targetModel);
+                    // Debug.Log("made new dummy hand")
+                    foreach (Transform targetBone in sourceModel.gameObject.GetComponentsInChildren<Transform>())
                     {
-                        if(sourceBone.name == targetBone.name){
-                            Debug.Log("setting bone " + sourceBone.name);
-                            targetBone.position = sourceBone.position;
-                            targetBone.rotation = sourceBone.rotation;
-                            continue;
-                        }
+                        Debug.Log("setting bone " + targetBone.name);
+                        if(pose.Value.ContainsKey(targetBone.name)){
+                            targetBone.position = pose.Value[targetBone.name].position;
+                            targetBone.rotation = pose.Value[targetBone.name].rotation;
+                        }   
                     }
+                    Vector3 offset = new Vector3(0, (float) 0.1, 0);
+                    targetModel.gameObject.transform.position = place.position + offset;
+                    targetModel.gameObject.transform.rotation = place.rotation;
+                    targetModel.gameObject.transform.Rotate(0,90,90);
+                    saveCount++;
+                    break;
                 }
-                newDummyHand.transform.position = place.position;
-                newDummyHand.transform.rotation = place.rotation;
-
-                // }
+                i++;
+            }
+            if(saveCount == numPlaces){
+                saveCount = 0;
             }
         }
-    }
-    
-    
+    }    
 }
