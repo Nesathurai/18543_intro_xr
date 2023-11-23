@@ -39,24 +39,18 @@ public class Compute : MonoBehaviour
     {
         // save pose
         if(Input.GetKeyDown("s") || Input.GetKeyDown(KeyCode.Keypad1) || Input.GetKeyDown("1")){
-            // Debug.Log("STARTING SAVE");
             save();
-            // Debug.Log("ENDING SAVE");
         }
 
         // load all poses and compare 
         if(Input.GetKeyDown("c") || Input.GetKeyDown(KeyCode.Keypad2) || Input.GetKeyDown("2")){
             // get the closest pose 
-            // Debug.Log("STARTING LOAD");
             Debug.Log(loadAll());
-            // Debug.Log("ENDING LOAD");
-            // Debug.Log("STARTING COMPAREALL");
             string poseFound = compareAll();
             Debug.Log("FOUND POSE: " + poseFound);
             if(poseFound != "NULL"){
                 handDummy.displayHand(poseFound);
             }
-            // Debug.Log("ENDING COMPAREALL");
         }
     }
     bool save(){
@@ -64,7 +58,6 @@ public class Compute : MonoBehaviour
         currentPose.Clear(); 
         foreach(KeyValuePair<Transform, Transform> entry in boneMap)
         {
-            // currentPose.Add(entry.Value.name, new BoneData(entry.Value.transform.position + new Vector3(0.1f,0.1f,0.1f), entry.Value.transform.rotation));
             currentPose.Add(entry.Value.name, new BoneData(entry.Value.transform.position, entry.Value.transform.rotation));
         }
         // now add this to all poses (so that the display text can pop up)
