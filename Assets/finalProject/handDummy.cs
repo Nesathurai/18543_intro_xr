@@ -38,7 +38,7 @@ public class HandDummy : MonoBehaviour
         GameObject newDummyHand = Instantiate(targetModel);
         foreach (Transform targetBone in newDummyHand.gameObject.GetComponentsInChildren<Transform>())
         {
-            Debug.Log("setting bone " + targetBone.name);
+            // Debug.Log("setting bone " + targetBone.name);
             if(allPoses[poseName].ContainsKey(targetBone.name)){
                 targetBone.position = allPoses[poseName][targetBone.name].position;
                 targetBone.rotation = allPoses[poseName][targetBone.name].rotation;
@@ -50,7 +50,7 @@ public class HandDummy : MonoBehaviour
         newDummyHand.gameObject.transform.Rotate(0,90,-90);
 
         // update text info frame
-        place.GetChild(1).GetChild(1).GetChild(0).GetComponentInChildren<TextMeshPro>().text = poseName;
+        place.GetChild(1).GetChild(1).GetChild(0).GetComponentInChildren<TMP_Text>().text = poseName;
         placei++;
     }
 }

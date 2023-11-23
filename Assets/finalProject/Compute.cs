@@ -93,14 +93,45 @@ public class Compute : MonoBehaviour
     float compare(IDictionary<string, BoneData> onePose0, IDictionary<string, BoneData> onePose1){
         // good reference: https://www.youtube.com/watch?v=lBzwUKQ3tbw
         // returns true if bone differences less than some delta 
+
+        GameObject root0 = new GameObject(); 
+        // get the wrist bone 
+        foreach(KeyValuePair<string, BoneData> entry in onePose0)
+        {
+            if((entry.Key == "handDummy")||(entry.Key == "AllanHandScanRigged")){
+                Debug.Log("Found root0: " + entry.Key);
+                root0.transform.position = entry.Value.position;
+                root0.transform.rotation = entry.Value.rotation;
+                root0.transform.localPosition = entry.Value.position;
+                root0.transform.localRotation = entry.Value.rotation;
+                break; 
+            }
+        }
+        GameObject root1 = new GameObject(); 
+        // get the wrist bone 
+        foreach(KeyValuePair<string, BoneData> entry in onePose1)
+        {
+            if((entry.Key == "handDummy")||(entry.Key == "AllanHandScanRigged")){
+                Debug.Log("Found root1: " + entry.Key);
+                root1.transform.position = entry.Value.position;
+                root1.transform.rotation = entry.Value.rotation;
+                root1.transform.localPosition = entry.Value.position;
+                root1.transform.localRotation = entry.Value.rotation;
+                break; 
+            }
+        }
+
+
         float del = 0;
         foreach(KeyValuePair<string, BoneData> entry in onePose0)
         {
             // TODO: do inverse transform here?
             // Debug.Log("hmd local pose: " + hmd.localPosition); 
             // Debug.Log("hmd pose: " + hmd.position); 
-            Vector3 p0 = hmd.InverseTransformPoint(entry.Value.position);
-            Vector3 p1 = hmd.InverseTransformPoint(onePose1[entry.Key].position);
+            // Vector3 p0 = hmd.InverseTransformPoint(entry.Value.position);
+            // Vector3 p1 = hmd.InverseTransformPoint(onePose1[entry.Key].position);
+            Vector3 p0 = root0.transform.InverseTransformPoint(entry.Value.position);
+            Vector3 p1 = root1.transform.InverseTransformPoint(onePose1[entry.Key].position);
             // Debug.Log(hmd);
             // Debug.Log("val0: " + entry.Value.position);
             // Debug.Log("val1: " + onePose1[entry.Key].position);
