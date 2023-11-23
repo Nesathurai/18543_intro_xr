@@ -56,9 +56,25 @@ public class Compute : MonoBehaviour
     bool save(){
         string path = @"C:\Users\ahnes\OneDrive\Documents\GitHub\18543_intro_xr\data\boneData" + saveCount + ".json";
         currentPose.Clear(); 
+
+        // find hand root 
+        GameObject root = new GameObject(); 
+        // get the wrist bone 
         foreach(KeyValuePair<Transform, Transform> entry in boneMap)
         {
-            currentPose.Add(entry.Value.name, new BoneData(entry.Value.transform.position, entry.Value.transform.rotation));
+            if((entry.Value.name == "handDummy")||(entry.Value.name == "AllanHandScanRigged")){
+                Debug.Log("Found root: " + entry.Value.name);
+                root.transform.position = entry.Value.position;
+                root.transform.rotation = entry.Value.rotation;
+                root.transform.localPosition = entry.Value.position;
+                root.transform.localRotation = entry.Value.rotation;
+                break; 
+            }
+        }
+
+        foreach(KeyValuePair<Transform, Transform> entry in boneMap)
+        {
+            currentPose.Add(entry.Value.name, new BoneData(root.transform.InverseTransformPoint(entry.Value.position), entry.Value.transform.position, entry.Value.transform.rotation));
         }
         // now add this to all poses (so that the display text can pop up)
         string fname = "boneData"+saveCount.ToString();
@@ -94,33 +110,32 @@ public class Compute : MonoBehaviour
         // good reference: https://www.youtube.com/watch?v=lBzwUKQ3tbw
         // returns true if bone differences less than some delta 
 
-        GameObject root0 = new GameObject(); 
-        // get the wrist bone 
-        foreach(KeyValuePair<string, BoneData> entry in onePose0)
-        {
-            if((entry.Key == "handDummy")||(entry.Key == "AllanHandScanRigged")){
-                Debug.Log("Found root0: " + entry.Key);
-                root0.transform.position = entry.Value.position;
-                root0.transform.rotation = entry.Value.rotation;
-                root0.transform.localPosition = entry.Value.position;
-                root0.transform.localRotation = entry.Value.rotation;
-                break; 
-            }
-        }
-        GameObject root1 = new GameObject(); 
-        // get the wrist bone 
-        foreach(KeyValuePair<string, BoneData> entry in onePose1)
-        {
-            if((entry.Key == "handDummy")||(entry.Key == "AllanHandScanRigged")){
-                Debug.Log("Found root1: " + entry.Key);
-                root1.transform.position = entry.Value.position;
-                root1.transform.rotation = entry.Value.rotation;
-                root1.transform.localPosition = entry.Value.position;
-                root1.transform.localRotation = entry.Value.rotation;
-                break; 
-            }
-        }
-
+        // GameObject root0 = new GameObject(); 
+        // // get the wrist bone 
+        // foreach(KeyValuePair<string, BoneData> entry in onePose0)
+        // {
+        //     if((entry.Key == "handDummy")||(entry.Key == "AllanHandScanRigged")){
+        //         Debug.Log("Found root0: " + entry.Key);
+        //         root0.transform.position = entry.Value.position;
+        //         root0.transform.rotation = entry.Value.rotation;
+        //         root0.transform.localPosition = entry.Value.position;
+        //         root0.transform.localRotation = entry.Value.rotation;
+        //         break; 
+        //     }
+        // }
+        // GameObject root1 = new GameObject(); 
+        // // get the wrist bone 
+        // foreach(KeyValuePair<string, BoneData> entry in onePose1)
+        // {
+        //     if((entry.Key == "handDummy")||(entry.Key == "AllanHandScanRigged")){
+        //         Debug.Log("Found root1: " + entry.Key);
+        //         root1.transform.position = entry.Value.position;
+        //         root1.transform.rotation = entry.Value.rotation;
+        //         root1.transform.localPosition = entry.Value.position;
+        //         root1.transform.localRotation = entry.Value.rotation;
+        //         break; 
+        //     }
+        // }
 
         float del = 0;
         foreach(KeyValuePair<string, BoneData> entry in onePose0)
@@ -130,14 +145,19 @@ public class Compute : MonoBehaviour
             // Debug.Log("hmd pose: " + hmd.position); 
             // Vector3 p0 = hmd.InverseTransformPoint(entry.Value.position);
             // Vector3 p1 = hmd.InverseTransformPoint(onePose1[entry.Key].position);
-            Vector3 p0 = root0.transform.InverseTransformPoint(entry.Value.position);
-            Vector3 p1 = root1.transform.InverseTransformPoint(onePose1[entry.Key].position);
+
+            // Vector3 p0 = root0.transform.InverseTransformPoint(entry.Value.position);
+            // Vector3 p1 = root1.transform.InverseTransformPoint(onePose1[entry.Key].position);
+            
             // Debug.Log(hmd);
             // Debug.Log("val0: " + entry.Value.position);
             // Debug.Log("val1: " + onePose1[entry.Key].position);
             // Debug.Log("invt0: " + p0);
             // Debug.Log("invt1: " + p1);
-            float d = (float) Math.Pow(Vector3.Distance(p0, p1), 2);
+
+            // float d = (float) Math.Pow(Vector3.Distance(p0, p1), 2);
+            float d = (float) Math.Pow(Vector3.Distance(entry.Value.localPosition, onePose1[entry.Key].localPosition), 2);
+            
             del += d; 
             // Debug.Log("del: " + d); 
 
@@ -183,10 +203,23 @@ public class Compute : MonoBehaviour
         float minDel = 999999999999.0f;
         string poseName = "NULL";
         // grab current pose to compare against
+        GameObject root = new GameObject(); 
+        // get the wrist bone 
+        foreach(KeyValuePair<Transform, Transform> entry in boneMap)
+        {
+            if((entry.Value.name == "handDummy")||(entry.Value.name == "AllanHandScanRigged")){
+                Debug.Log("Found root: " + entry.Value.name);
+                root.transform.position = entry.Value.position;
+                root.transform.rotation = entry.Value.rotation;
+                root.transform.localPosition = entry.Value.position;
+                root.transform.localRotation = entry.Value.rotation;
+                break; 
+            }
+        }
         currentPose.Clear(); 
         foreach(KeyValuePair<Transform, Transform> entry in boneMap)
         {
-            currentPose.Add(entry.Value.name, new BoneData(entry.Value.transform.position, entry.Value.transform.rotation));
+            currentPose.Add(entry.Value.name, new BoneData(root.transform.InverseTransformPoint(entry.Value.position), entry.Value.transform.position, entry.Value.transform.rotation));
         }
         foreach(KeyValuePair<string, IDictionary<string, BoneData>> pose in allPoses){
             float del = compare(pose.Value, currentPose);

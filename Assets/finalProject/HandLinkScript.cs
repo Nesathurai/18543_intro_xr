@@ -43,11 +43,13 @@ public class BoneRotationCopier : MonoBehaviour
 
 public class BoneData {
 
-    public BoneData(Vector3 Position, Quaternion Rotation){
+    public BoneData(Vector3 LocalPosition, Vector3 Position, Quaternion Rotation){
+        localPosition = LocalPosition; 
         position = Position;
         rotation = Rotation;
     }
 
+    public Vector3 localPosition; 
     public Vector3 position;
     public Quaternion rotation;
 }
