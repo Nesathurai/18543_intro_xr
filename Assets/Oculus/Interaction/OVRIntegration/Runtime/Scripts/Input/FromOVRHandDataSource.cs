@@ -66,6 +66,8 @@ namespace Oculus.Interaction.Input
         private IOVRCameraRigRef CameraRigRef;
 
         protected override HandDataAsset DataAsset => _handDataAsset;
+        public Vector3 manualOffset; 
+
 
         // Wrist rotations that come from OVR need correcting.
         public static Quaternion WristFixupRotation { get; } =
@@ -82,6 +84,7 @@ namespace Oculus.Interaction.Input
 
         protected override void Start()
         {
+            manualOffset = new Vector3((float) 0.0, (float) 0.0, (float) 0.0);
             this.BeginStart(ref _started, () => base.Start());
             this.AssertField(CameraRigRef, nameof(CameraRigRef));
             this.AssertField(TrackingToWorldTransformer, nameof(TrackingToWorldTransformer));
@@ -231,14 +234,15 @@ namespace Oculus.Interaction.Input
             // any modifications that the application makes to OVRSkeleton
             _handDataAsset.Root = new Pose()
             {
-                position = poseData.RootPose.Position.FromFlippedZVector3f(),
+                // anesathu
+                position = poseData.RootPose.Position.FromFlippedZVector3f() + manualOffset,
                 rotation = poseData.RootPose.Orientation.FromFlippedZQuatf()
             };
 
             if (_ovrHand.IsPointerPoseValid)
             {
                 _handDataAsset.PointerPoseOrigin = PoseOrigin.RawTrackedPose;
-                _handDataAsset.PointerPose = new Pose(_ovrHand.PointerPose.localPosition,
+                _handDataAsset.PointerPose = new Pose(_ovrHand.PointerPose.localPosition + manualOffset,
                         _ovrHand.PointerPose.localRotation);
             }
             else

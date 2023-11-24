@@ -178,6 +178,7 @@ public class OVRCameraRig : MonoBehaviour
     protected Camera _centerEyeCamera;
     protected Camera _leftEyeCamera;
     protected Camera _rightEyeCamera;
+    public Vector3 manualOffset; 
 
     private Matrix4x4 _previousTrackingSpaceTransform;
 
@@ -191,6 +192,7 @@ public class OVRCameraRig : MonoBehaviour
 
     protected virtual void Start()
     {
+        manualOffset = new Vector3((float) 0.0, (float) 0.0, (float) 0.0);
         UpdateAnchors(true, true);
         Application.onBeforeRender += OnBeforeRenderCallback;
     }
@@ -263,7 +265,7 @@ public class OVRCameraRig : MonoBehaviour
 
                 if (OVRNodeStateProperties.GetNodeStatePropertyVector3(Node.CenterEye, NodeStatePropertyType.Position,
                         OVRPlugin.Node.EyeCenter, OVRPlugin.Step.Render, out centerEyePosition))
-                    centerEyeAnchor.localPosition = centerEyePosition;
+                    centerEyeAnchor.localPosition = centerEyePosition + manualOffset; //anesathu
                 if (OVRNodeStateProperties.GetNodeStatePropertyQuaternion(Node.CenterEye,
                         NodeStatePropertyType.Orientation, OVRPlugin.Node.EyeCenter, OVRPlugin.Step.Render,
                         out centerEyeRotation))
@@ -272,7 +274,7 @@ public class OVRCameraRig : MonoBehaviour
             else
             {
                 centerEyeAnchor.localRotation = emulatedRotation;
-                centerEyeAnchor.localPosition = OVRManager.instance.headPoseRelativeOffsetTranslation;
+                centerEyeAnchor.localPosition = OVRManager.instance.headPoseRelativeOffsetTranslation + manualOffset; //anesathu
             }
 
             if (!hmdPresent || monoscopic)
@@ -288,13 +290,13 @@ public class OVRCameraRig : MonoBehaviour
                 Vector3 rightEyePosition = Vector3.zero;
                 Quaternion leftEyeRotation = Quaternion.identity;
                 Quaternion rightEyeRotation = Quaternion.identity;
-
+                // anesathu (added manual offset)
                 if (OVRNodeStateProperties.GetNodeStatePropertyVector3(Node.LeftEye, NodeStatePropertyType.Position,
                         OVRPlugin.Node.EyeLeft, OVRPlugin.Step.Render, out leftEyePosition))
-                    leftEyeAnchor.localPosition = leftEyePosition;
+                    leftEyeAnchor.localPosition = leftEyePosition + manualOffset; // anesathu
                 if (OVRNodeStateProperties.GetNodeStatePropertyVector3(Node.RightEye, NodeStatePropertyType.Position,
                         OVRPlugin.Node.EyeRight, OVRPlugin.Step.Render, out rightEyePosition))
-                    rightEyeAnchor.localPosition = rightEyePosition;
+                    rightEyeAnchor.localPosition = rightEyePosition + manualOffset; // anesathu 
                 if (OVRNodeStateProperties.GetNodeStatePropertyQuaternion(Node.LeftEye,
                         NodeStatePropertyType.Orientation, OVRPlugin.Node.EyeLeft, OVRPlugin.Step.Render,
                         out leftEyeRotation))

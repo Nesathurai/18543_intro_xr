@@ -9,7 +9,6 @@ using TMPro;
 public class Compute : MonoBehaviour
 {
     public BoneRotationCopier handLinkScript;
-    public Oculus.Interaction.Samples.PoseUseSample poseDisplay;
     
     public Oculus.Interaction.Samples.CreateVisuals createVisuals;
     
@@ -25,6 +24,9 @@ public class Compute : MonoBehaviour
     public TextMeshPro text;
     public Transform hmd;
     public HandDummy handDummy; 
+    // public Oculus.Interaction.Input.FromOVRHmdDataSource hmdDataSource;
+    public OVRCameraRig ovrCameraRig;
+    public Oculus.Interaction.Input.FromOVRHandDataSource fromovrhanddatasource; 
     // Start is called before the first frame update
     void Start()
     {
@@ -37,6 +39,23 @@ public class Compute : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(Input.GetKeyDown(KeyCode.DownArrow)){
+            ovrCameraRig.manualOffset += new Vector3((float)0.0, (float)-0.1, (float)0.0);
+            fromovrhanddatasource.manualOffset += new Vector3((float)0.0, (float)-0.1, (float)0.0);
+        }
+        if(Input.GetKeyDown(KeyCode.UpArrow)){
+            ovrCameraRig.manualOffset += new Vector3((float)0.0, (float)0.1, (float)0.0);
+            fromovrhanddatasource.manualOffset += new Vector3((float)0.0, (float)0.1, (float)0.0);
+        }
+        if(Input.GetKeyDown(KeyCode.RightArrow)){
+            ovrCameraRig.manualOffset += new Vector3((float)0.1, (float)0.0, (float)0.0);
+            fromovrhanddatasource.manualOffset += new Vector3((float)0.1, (float)0.0, (float)0.0);
+        }
+        if(Input.GetKeyDown(KeyCode.LeftArrow)){
+            ovrCameraRig.manualOffset += new Vector3((float)-0.1, (float)0.0, (float)0.0);
+            fromovrhanddatasource.manualOffset += new Vector3((float)-0.1, (float)0.0, (float)0.0);
+        }
+
         // save pose
         if(Input.GetKeyDown("s") || Input.GetKeyDown(KeyCode.Keypad1) || Input.GetKeyDown("1")){
             save();
