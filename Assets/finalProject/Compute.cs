@@ -22,9 +22,7 @@ public class Compute : MonoBehaviour
     private GameObject targetModel; // Reference to the model you want to copy bone rotations to.
     int saveCount = 0; 
     public TextMeshPro text;
-    public Transform hmd;
     public HandDummy handDummy; 
-    // public Oculus.Interaction.Input.FromOVRHmdDataSource hmdDataSource;
     public OVRCameraRig ovrCameraRig;
     public Oculus.Interaction.Input.FromOVRHandDataSource fromovrhanddatasource; 
     // Start is called before the first frame update
@@ -42,18 +40,22 @@ public class Compute : MonoBehaviour
         if(Input.GetKeyDown(KeyCode.DownArrow)){
             ovrCameraRig.manualOffset += new Vector3((float)0.0, (float)-0.1, (float)0.0);
             fromovrhanddatasource.manualOffset += new Vector3((float)0.0, (float)-0.1, (float)0.0);
+            handDummy.manualOffset += new Vector3((float)0.0, (float)-0.1, (float)0.0);
         }
         if(Input.GetKeyDown(KeyCode.UpArrow)){
             ovrCameraRig.manualOffset += new Vector3((float)0.0, (float)0.1, (float)0.0);
             fromovrhanddatasource.manualOffset += new Vector3((float)0.0, (float)0.1, (float)0.0);
+            handDummy.manualOffset += new Vector3((float)0.0, (float)0.1, (float)0.0);
         }
         if(Input.GetKeyDown(KeyCode.RightArrow)){
             ovrCameraRig.manualOffset += new Vector3((float)0.1, (float)0.0, (float)0.0);
             fromovrhanddatasource.manualOffset += new Vector3((float)0.1, (float)0.0, (float)0.0);
+            handDummy.manualOffset += new Vector3((float)0.1, (float)0.0, (float)0.0);
         }
         if(Input.GetKeyDown(KeyCode.LeftArrow)){
             ovrCameraRig.manualOffset += new Vector3((float)-0.1, (float)0.0, (float)0.0);
             fromovrhanddatasource.manualOffset += new Vector3((float)-0.1, (float)0.0, (float)0.0);
+            handDummy.manualOffset += new Vector3((float)-0.1, (float)0.0, (float)0.0);
         }
 
         // save pose
@@ -82,7 +84,7 @@ public class Compute : MonoBehaviour
         foreach(KeyValuePair<Transform, Transform> entry in boneMap)
         {
             if((entry.Value.name == "handDummy")||(entry.Value.name == "AllanHandScanRigged")){
-                Debug.Log("Found root: " + entry.Value.name);
+                // Debug.Log("Found root: " + entry.Value.name);
                 root.transform.position = entry.Value.position;
                 root.transform.rotation = entry.Value.rotation;
                 root.transform.localPosition = entry.Value.position;
@@ -127,74 +129,14 @@ public class Compute : MonoBehaviour
     }
     float compare(IDictionary<string, BoneData> onePose0, IDictionary<string, BoneData> onePose1){
         // good reference: https://www.youtube.com/watch?v=lBzwUKQ3tbw
-        // returns true if bone differences less than some delta 
-
-        // GameObject root0 = new GameObject(); 
-        // // get the wrist bone 
-        // foreach(KeyValuePair<string, BoneData> entry in onePose0)
-        // {
-        //     if((entry.Key == "handDummy")||(entry.Key == "AllanHandScanRigged")){
-        //         Debug.Log("Found root0: " + entry.Key);
-        //         root0.transform.position = entry.Value.position;
-        //         root0.transform.rotation = entry.Value.rotation;
-        //         root0.transform.localPosition = entry.Value.position;
-        //         root0.transform.localRotation = entry.Value.rotation;
-        //         break; 
-        //     }
-        // }
-        // GameObject root1 = new GameObject(); 
-        // // get the wrist bone 
-        // foreach(KeyValuePair<string, BoneData> entry in onePose1)
-        // {
-        //     if((entry.Key == "handDummy")||(entry.Key == "AllanHandScanRigged")){
-        //         Debug.Log("Found root1: " + entry.Key);
-        //         root1.transform.position = entry.Value.position;
-        //         root1.transform.rotation = entry.Value.rotation;
-        //         root1.transform.localPosition = entry.Value.position;
-        //         root1.transform.localRotation = entry.Value.rotation;
-        //         break; 
-        //     }
-        // }
-
+        
         float del = 0;
         foreach(KeyValuePair<string, BoneData> entry in onePose0)
         {
-            // TODO: do inverse transform here?
-            // Debug.Log("hmd local pose: " + hmd.localPosition); 
-            // Debug.Log("hmd pose: " + hmd.position); 
-            // Vector3 p0 = hmd.InverseTransformPoint(entry.Value.position);
-            // Vector3 p1 = hmd.InverseTransformPoint(onePose1[entry.Key].position);
-
-            // Vector3 p0 = root0.transform.InverseTransformPoint(entry.Value.position);
-            // Vector3 p1 = root1.transform.InverseTransformPoint(onePose1[entry.Key].position);
-            
-            // Debug.Log(hmd);
-            // Debug.Log("val0: " + entry.Value.position);
-            // Debug.Log("val1: " + onePose1[entry.Key].position);
-            // Debug.Log("invt0: " + p0);
-            // Debug.Log("invt1: " + p1);
-
-            // float d = (float) Math.Pow(Vector3.Distance(p0, p1), 2);
             float d = (float) Math.Pow(Vector3.Distance(entry.Value.localPosition, onePose1[entry.Key].localPosition), 2);
-            
             del += d; 
-            // Debug.Log("del: " + d); 
-
-            // del += d;
-            // Debug.Log("pos: " + (entry.Value.position - onePose1[entry.Key].position).magnitude);
-            // Debug.Log("rot: " + (Quaternion.Inverse(entry.Value.rotation) * onePose1[entry.Key].rotation).eulerAngles.magnitude);
-            // Single rot = (onePose1[entry.Key].rotation * Quaternion.Inverse(entry.Value.rotation)).normalized.eulerAngles.magnitude % 360;
-            // Vector3 curr = entry.Value.Transform.InverseTransformPoint(onePose1[entry.Key].position);
-            // Debug.Log("curr: " + curr);
-            // del += Vector3.Distance(curr, onePose1[entry.Key].position);
-            // Debug.Log(entry.Key + " -> " + Math.Pow((entry.Value.position - onePose1[entry.Key].position).magnitude, 2).ToString() + " | " + rot);
-            // del += (Single) Math.Pow((entry.Value.position - onePose1[entry.Key].position).magnitude, 2);
-            // Debug.Log("dist: " + Vector3.Distance(entry.Value.position, onePose1[entry.Key].position));
-            // del += (Single) Math.Pow(Vector3.Distance(entry.Value.position, onePose1[entry.Key].position),2);
-            // to subtract quaternions must use inverse 
-            // del += rot;
         }
-        Debug.Log("DEL: " + del); 
+        // Debug.Log("DEL: " + del); 
         return del;
     }
     
@@ -227,7 +169,7 @@ public class Compute : MonoBehaviour
         foreach(KeyValuePair<Transform, Transform> entry in boneMap)
         {
             if((entry.Value.name == "handDummy")||(entry.Value.name == "AllanHandScanRigged")){
-                Debug.Log("Found root: " + entry.Value.name);
+                // Debug.Log("Found root: " + entry.Value.name);
                 root.transform.position = entry.Value.position;
                 root.transform.rotation = entry.Value.rotation;
                 root.transform.localPosition = entry.Value.position;

@@ -21,8 +21,10 @@ public class HandDummy : MonoBehaviour
     int placei = 0;
     public GameObject placeHolder; 
     Transform[] placeHolderChildren;
+    public Vector3 manualOffset; 
     void Start()
     {
+        manualOffset = new Vector3((float) 0.0, (float) 0.0, (float) 0.0);
         allPoses = compute.allPoses;
     }
 
@@ -45,10 +47,8 @@ public class HandDummy : MonoBehaviour
             }
         }
         Vector3 offset = new Vector3(0, (float) 0.1, 0);
-        newDummyHand.gameObject.transform.position = place.position + offset;
+        newDummyHand.gameObject.transform.position = place.position + offset + manualOffset;
         newDummyHand.gameObject.transform.rotation = place.rotation;
-        // newDummyHand.gameObject.transform.position = place.GetChild(0).position + offset;
-        // newDummyHand.gameObject.transform.rotation = place.GetChild(0).rotation;
         newDummyHand.gameObject.transform.Rotate(0,90,-90);
 
         // update text info frame
