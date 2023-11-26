@@ -28,6 +28,8 @@ public class Compute : MonoBehaviour
     public HandDummy handDummy; 
     public OVRCameraRig ovrCameraRig;
     public Oculus.Interaction.Input.FromOVRHandDataSource fromovrhanddatasource; 
+    float timer = 0.0f;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -40,6 +42,7 @@ public class Compute : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
         // create two modes: one mode to save, one mode to recognize (also a clear button) 
         // TODO: use mutex?
         if(Input.GetKeyDown(KeyCode.DownArrow)){
@@ -67,12 +70,16 @@ public class Compute : MonoBehaviour
         if(mode == ""){
             // TODO: add names / dialog showing modes 
             // enter save mode
-            if(Input.GetKeyDown("s") || Input.GetKeyDown(KeyCode.Keypad1) || Input.GetKeyDown("1")){
+            if(Input.GetKeyDown(KeyCode.Keypad1) || Input.GetKeyDown("1")){
                 mode = "save";
             }
             // enter compare mode
-            else if(Input.GetKey("c") || Input.GetKeyDown(KeyCode.Keypad2) || Input.GetKeyDown("2")){
+            else if(Input.GetKeyDown(KeyCode.Keypad2) || Input.GetKeyDown("2")){
                 mode = "compare";
+            }
+            else if(Input.GetKeyDown(KeyCode.Keypad3) || Input.GetKeyDown("3")){
+                mode = "translate";
+                timer = 0;
             }
             else if(Input.GetKeyDown(KeyCode.Return)){
                 mode = ""; 
@@ -80,7 +87,7 @@ public class Compute : MonoBehaviour
                 SceneManager.LoadScene(SceneManager.GetActiveScene().name);
             }
             else{
-                textMode.GetComponentInChildren<TMP_Text>().text = "Press '1' to enter 'save' mode\nPress '2' to enter 'compare' mode\nPress 'return' to reset the environment!";
+                textMode.GetComponentInChildren<TMP_Text>().text = "Press '1' to enter 'save' mode\nPress '2' to enter 'compare' mode\nPress '3' to enter 'translate' mode\nPress 'return' to reset the environment!";
             }
         }
         else if(mode == "save"){
@@ -115,6 +122,28 @@ public class Compute : MonoBehaviour
             }
             else{
                 textMode.GetComponentInChildren<TMP_Text>().text = "In mode 'compare'\nPress 'space' to compare pose!\nPress 'return' to return to the previous menu!";
+            }
+        }
+        else if(mode == "translate"){
+            timer += Time.deltaTime;
+            // for translate mode - only check every n milliseconds
+            if(timer > 0.5) {
+                timer = 0; 
+                loadAll();
+                string poseFound = compareAll();
+                // Debug.Log("FOUND POSE: " + poseFound);
+                if(poseFound != "NULL"){
+                    // display hand with pose
+                    handDummy.displayHand(poseFound);
+                    // update output text 
+                    updateTextOutput(poseFound); 
+                }
+            }
+            else if(Input.GetKeyDown(KeyCode.Return)){
+                mode = ""; 
+            }
+            else{
+                textMode.GetComponentInChildren<TMP_Text>().text = "In mode 'translate'\nPress 'return' to return to the previous menu!";
             }
         }
     }
@@ -155,6 +184,7 @@ public class Compute : MonoBehaviour
         load(fname);
         createVisuals.ManualUpdate();
         createVisuals.ShowVisuals(fname);
+        handDummy.displayHand(fname);
         saveCount++; 
         return true; 
     }
