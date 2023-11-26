@@ -28,7 +28,11 @@ public class Compute : MonoBehaviour
     public HandDummy handDummy; 
     public OVRCameraRig ovrCameraRig;
     public Oculus.Interaction.Input.FromOVRHandDataSource fromovrhanddatasource; 
+    public Microsoft.MixedReality.Toolkit.Experimental.UI.NonNativeKeyboard keyboard;
     float timer = 0.0f;
+
+    // references
+    // https://github.com/Ayfel/MRTK-Keyboard
 
     // Start is called before the first frame update
     void Start()
@@ -37,6 +41,7 @@ public class Compute : MonoBehaviour
         targetModel = handLinkScript.targetModel;
         // generate text in create visuals 
         createVisuals.Start();
+        keyboard.PresentKeyboard();
     }
 
     // Update is called once per frame
@@ -127,11 +132,10 @@ public class Compute : MonoBehaviour
         else if(mode == "translate"){
             timer += Time.deltaTime;
             // for translate mode - only check every n milliseconds
-            if(timer > 0.5) {
+            if(timer > 1.0) {
                 timer = 0; 
                 loadAll();
                 string poseFound = compareAll();
-                // Debug.Log("FOUND POSE: " + poseFound);
                 if(poseFound != "NULL"){
                     // display hand with pose
                     handDummy.displayHand(poseFound);
