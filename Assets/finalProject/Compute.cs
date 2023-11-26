@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using System;
 using System.Collections.Generic; 
 using System.Collections;
@@ -21,7 +22,9 @@ public class Compute : MonoBehaviour
     public IDictionary<string, BoneData> currentPose = new Dictionary<string, BoneData>();
     private GameObject targetModel; // Reference to the model you want to copy bone rotations to.
     int saveCount = 0; 
-    public TextMeshPro text;
+    string mode = ""; 
+    public GameObject textOutput;
+    public GameObject textMode;
     public HandDummy handDummy; 
     public OVRCameraRig ovrCameraRig;
     public Oculus.Interaction.Input.FromOVRHandDataSource fromovrhanddatasource; 
@@ -37,6 +40,8 @@ public class Compute : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // create two modes: one mode to save, one mode to recognize (also a clear button) 
+        // TODO: use mutex?
         if(Input.GetKeyDown(KeyCode.DownArrow)){
             ovrCameraRig.manualOffset += new Vector3((float)0.0, (float)-0.1, (float)0.0);
             fromovrhanddatasource.manualOffset += new Vector3((float)0.0, (float)-0.1, (float)0.0);
@@ -58,19 +63,58 @@ public class Compute : MonoBehaviour
             handDummy.manualOffset += new Vector3((float)-0.1, (float)0.0, (float)0.0);
         }
 
-        // save pose
-        if(Input.GetKeyDown("s") || Input.GetKeyDown(KeyCode.Keypad1) || Input.GetKeyDown("1")){
-            save();
+        // when mode is equal to "", then the mode can change / at default menu 
+        if(mode == ""){
+            // TODO: add names / dialog showing modes 
+            // enter save mode
+            if(Input.GetKeyDown("s") || Input.GetKeyDown(KeyCode.Keypad1) || Input.GetKeyDown("1")){
+                mode = "save";
+            }
+            // enter compare mode
+            else if(Input.GetKey("c") || Input.GetKeyDown(KeyCode.Keypad2) || Input.GetKeyDown("2")){
+                mode = "compare";
+            }
+            else if(Input.GetKeyDown(KeyCode.Return)){
+                mode = ""; 
+                // reset scene without having to exit 
+                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            }
+            else{
+                textMode.GetComponentInChildren<TMP_Text>().text = "Press '1' to enter 'save' mode\nPress '2' to enter 'compare' mode\nPress 'return' to reset the environment!";
+            }
         }
-
-        // load all poses and compare 
-        if(Input.GetKeyDown("c") || Input.GetKeyDown(KeyCode.Keypad2) || Input.GetKeyDown("2")){
-            // get the closest pose 
-            Debug.Log(loadAll());
-            string poseFound = compareAll();
-            Debug.Log("FOUND POSE: " + poseFound);
-            if(poseFound != "NULL"){
-                handDummy.displayHand(poseFound);
+        else if(mode == "save"){
+            // save current pose 
+            if(Input.GetKeyDown("space")){
+                save();
+            }
+            else if(Input.GetKeyDown(KeyCode.Return)){
+                mode = ""; 
+            }
+            else{
+                textMode.GetComponentInChildren<TMP_Text>().text = "In mode 'save'\nPress 'space' to save pose!\nPress 'return' to return to the previous menu!";
+            }
+        }
+        else if(mode == "compare"){
+            // load all poses and compare 
+            if(Input.GetKeyDown("space")){
+                // get the closest pose 
+                // Debug.Log(loadAll());
+                loadAll();
+                string poseFound = compareAll();
+                // Debug.Log("FOUND POSE: " + poseFound);
+                if(poseFound != "NULL"){
+                    // display hand with pose
+                    handDummy.displayHand(poseFound);
+                    // update output text 
+                    updateTextOutput(poseFound); 
+                }
+            }
+            else if(Input.GetKeyDown(KeyCode.Return)){
+                mode = ""; 
+            }
+            else{
+                textMode.GetComponentInChildren<TMP_Text>().text = "In mode 'compare'\nPress 'space' to compare pose!\nPress 'return' to return to the previous menu!";
             }
         }
     }
@@ -161,7 +205,8 @@ public class Compute : MonoBehaviour
     }
 
     string compareAll(){
-        float minDel = 999999999999.0f;
+        // calibrate the sensitivity of pose matching
+        float minDel = 0.04f;
         string poseName = "NULL";
         // grab current pose to compare against
         GameObject root = new GameObject(); 
@@ -189,8 +234,15 @@ public class Compute : MonoBehaviour
                 poseName = pose.Key;
             }
         }
+        Debug.Log("min del: " + minDel); 
         createVisuals.ManualUpdate();
         createVisuals.ShowVisuals(poseName);
         return poseName;
+    }
+
+    string updateTextOutput(string str){
+        textOutput.GetComponentInChildren<TMP_Text>().text += str;
+        textOutput.GetComponentInChildren<TMP_Text>().text += " " ; 
+        return textOutput.GetComponentInChildren<TMP_Text>().text;
     }
 }

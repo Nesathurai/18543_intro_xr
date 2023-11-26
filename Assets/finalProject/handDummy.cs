@@ -20,7 +20,7 @@ public class HandDummy : MonoBehaviour
     int saveCount = 0; 
     int placei = 0;
     public GameObject placeHolder; 
-    Transform[] placeHolderChildren;
+    List<GameObject> newDummyHands = new List<GameObject>();
     public Vector3 manualOffset; 
     void Start()
     {
@@ -28,24 +28,27 @@ public class HandDummy : MonoBehaviour
         allPoses = compute.allPoses;
     }
 
-    // void Update()
-    // {
-    // }
     public void displayHand(string poseName){
         int numPlaces = placeHolder.transform.childCount; 
         // place like thumbs up, contains the thumbs up frame, and the text frame
-        placei = placei % numPlaces;
-        Transform place = placeHolder.transform.GetChild(placei);
         // Debug.Log("placeholder: " + place.name);
-        GameObject newDummyHand = Instantiate(targetModel);
+        placei = placei % numPlaces;
+        if(newDummyHands.Count < numPlaces){
+            newDummyHands.Add(Instantiate(targetModel));
+        }
+        else{
+            Destroy(newDummyHands[placei]);
+            newDummyHands[placei] = Instantiate(targetModel);
+        }
+        GameObject newDummyHand = newDummyHands[placei]; 
         foreach (Transform targetBone in newDummyHand.gameObject.GetComponentsInChildren<Transform>())
         {
-            // Debug.Log("setting bone " + targetBone.name);
             if(allPoses[poseName].ContainsKey(targetBone.name)){
                 targetBone.position = allPoses[poseName][targetBone.name].position;
                 targetBone.rotation = allPoses[poseName][targetBone.name].rotation;
             }
         }
+        Transform place = placeHolder.transform.GetChild(placei);
         Vector3 offset = new Vector3(0, (float) 0.1, 0);
         newDummyHand.gameObject.transform.position = place.position + offset + manualOffset;
         newDummyHand.gameObject.transform.rotation = place.rotation;
