@@ -20,19 +20,22 @@ public class Compute : MonoBehaviour
     public IDictionary<Transform, Transform> boneMap = new Dictionary<Transform, Transform>();
     // this stores the transform data to json for a single hand pose
     public IDictionary<string, BoneData> currentPose = new Dictionary<string, BoneData>();
-    private GameObject targetModel; // Reference to the model you want to copy bone rotations to.
-    int saveCount = 0; 
-    string mode = ""; 
     public GameObject textOutput;
+    public GameObject textInput; 
+    // public GameObject textInput;
     public GameObject textMode;
     public HandDummy handDummy; 
     public OVRCameraRig ovrCameraRig;
     public Oculus.Interaction.Input.FromOVRHandDataSource fromovrhanddatasource; 
-    public Microsoft.MixedReality.Toolkit.Experimental.UI.NonNativeKeyboard keyboard;
+    public OVRVirtualKeyboard keyboard; 
+    private GameObject targetModel; // Reference to the model you want to copy bone rotations to.
+    int saveCount = 0; 
+    string mode = ""; 
     float timer = 0.0f;
 
     // references
-    // https://github.com/Ayfel/MRTK-Keyboard
+    // https://www.youtube.com/watch?v=lBzwUKQ3tbw
+    
 
     // Start is called before the first frame update
     void Start()
@@ -41,15 +44,14 @@ public class Compute : MonoBehaviour
         targetModel = handLinkScript.targetModel;
         // generate text in create visuals 
         createVisuals.Start();
-        keyboard.PresentKeyboard();
+        // textInput.SetActive(false); 
+        // keyboard.gameObject.SetActive(true); 
+        keyboard.OnKeyboardHidden();
     }
 
     // Update is called once per frame
     void Update()
     {
-
-        // create two modes: one mode to save, one mode to recognize (also a clear button) 
-        // TODO: use mutex?
         if(Input.GetKeyDown(KeyCode.DownArrow)){
             ovrCameraRig.manualOffset += new Vector3((float)0.0, (float)-0.1, (float)0.0);
             fromovrhanddatasource.manualOffset += new Vector3((float)0.0, (float)-0.1, (float)0.0);
@@ -71,19 +73,25 @@ public class Compute : MonoBehaviour
             handDummy.manualOffset += new Vector3((float)-0.1, (float)0.0, (float)0.0);
         }
 
+        // create two modes: one mode to save, one mode to recognize (also a clear button) 
         // when mode is equal to "", then the mode can change / at default menu 
         if(mode == ""){
             // TODO: add names / dialog showing modes 
             // enter save mode
             if(Input.GetKeyDown(KeyCode.Keypad1) || Input.GetKeyDown("1")){
                 mode = "save";
+                // textInput.SetActive(true); 
+                keyboard.OnKeyboardShown();
+                // textInput.GetComponentInChildren<TMP_Text>().text = keyboard.TextCommitField.text;
             }
             // enter compare mode
             else if(Input.GetKeyDown(KeyCode.Keypad2) || Input.GetKeyDown("2")){
                 mode = "compare";
+                keyboard.OnKeyboardHidden();
             }
             else if(Input.GetKeyDown(KeyCode.Keypad3) || Input.GetKeyDown("3")){
                 mode = "translate";
+                keyboard.OnKeyboardHidden();
                 timer = 0;
             }
             else if(Input.GetKeyDown(KeyCode.Return)){
@@ -93,12 +101,18 @@ public class Compute : MonoBehaviour
             }
             else{
                 textMode.GetComponentInChildren<TMP_Text>().text = "Press '1' to enter 'save' mode\nPress '2' to enter 'compare' mode\nPress '3' to enter 'translate' mode\nPress 'return' to reset the environment!";
+                keyboard.OnKeyboardHidden();
             }
         }
         else if(mode == "save"){
             // save current pose 
             if(Input.GetKeyDown("space")){
-                save();
+                if(keyboard.TextCommitField.text.Length == 0){
+                    save("");
+                }
+                else{
+                    save(keyboard.TextCommitField.text); 
+                }
             }
             else if(Input.GetKeyDown(KeyCode.Return)){
                 mode = ""; 
@@ -151,8 +165,8 @@ public class Compute : MonoBehaviour
             }
         }
     }
-    bool save(){
-        string path = @"C:\Users\ahnes\OneDrive\Documents\GitHub\18543_intro_xr\data\boneData" + saveCount + ".json";
+    bool save(string fname){
+        
         currentPose.Clear(); 
 
         // find hand root 
@@ -175,7 +189,9 @@ public class Compute : MonoBehaviour
             currentPose.Add(entry.Value.name, new BoneData(root.transform.InverseTransformPoint(entry.Value.position), entry.Value.transform.position, entry.Value.transform.rotation));
         }
         // now add this to all poses (so that the display text can pop up)
-        string fname = "boneData"+saveCount.ToString();
+        if(fname == ""){
+            fname = "boneData"+saveCount.ToString();
+        }
         if(allPoses.ContainsKey(fname)){
             allPoses[fname] = currentPose;
         }
@@ -183,6 +199,8 @@ public class Compute : MonoBehaviour
             allPoses.Add(fname, currentPose);
         }
         string jsonData = JsonConvert.SerializeObject(currentPose, new JsonSerializerSettings {ReferenceLoopHandling = ReferenceLoopHandling.Ignore});
+        string path = @"C:\Users\ahnes\OneDrive\Documents\GitHub\18543_intro_xr\data\" + fname + ".json";
+        // Debug.Log("PATH: " + path); 
         File.WriteAllText(path, jsonData);
         // Debug.Log("SAVED JSON\n"); 
         load(fname);
@@ -206,8 +224,6 @@ public class Compute : MonoBehaviour
         return true;
     }
     float compare(IDictionary<string, BoneData> onePose0, IDictionary<string, BoneData> onePose1){
-        // good reference: https://www.youtube.com/watch?v=lBzwUKQ3tbw
-        
         float del = 0;
         foreach(KeyValuePair<string, BoneData> entry in onePose0)
         {

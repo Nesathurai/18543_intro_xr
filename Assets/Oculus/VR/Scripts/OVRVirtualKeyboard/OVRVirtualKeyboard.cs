@@ -327,7 +327,7 @@ public class OVRVirtualKeyboard : MonoBehaviour, OVRManager.EventListener
     /// </summary>
     [SerializeField]
     [FormerlySerializedAs("TextCommitField")]
-    private InputField textCommitField;
+    public InputField textCommitField;
 
     [Header("Controller Input")]
     [FormerlySerializedAs("leftControllerInputTransform")]
@@ -1185,7 +1185,7 @@ public class OVRVirtualKeyboard : MonoBehaviour, OVRManager.EventListener
         }
     }
 
-    private void OnKeyboardShown()
+    public void OnKeyboardShown()
     {
         if (!keyboardVisible_)
         {
@@ -1194,7 +1194,7 @@ public class OVRVirtualKeyboard : MonoBehaviour, OVRManager.EventListener
         }
     }
 
-    private void OnKeyboardHidden()
+    public void OnKeyboardHidden()
     {
         if (keyboardVisible_)
         {

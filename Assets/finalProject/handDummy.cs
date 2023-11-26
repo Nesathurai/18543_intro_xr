@@ -13,7 +13,7 @@ public class HandDummy : MonoBehaviour
     // map from transform to transform between source and target hand
     IDictionary<Transform, Transform> boneMap = new Dictionary<Transform, Transform>();
     // this stores the transform data to json for a single hand pose
-    IDictionary<string, BoneData> currentPose;
+    // IDictionary<string, BoneData> currentPose;
     public Compute compute; 
     // this stores the boneData for all hand poses
     IDictionary<string, IDictionary<string, BoneData>> allPoses;
@@ -41,6 +41,33 @@ public class HandDummy : MonoBehaviour
             newDummyHands[placei] = Instantiate(targetModel);
         }
         GameObject newDummyHand = newDummyHands[placei]; 
+        Transform place = placeHolder.transform.GetChild(placei);
+        Vector3 offset = new Vector3(0, (float) 0.1, 0);
+        // // get the root, then do a point transform (exact opposite of inverse transform point)
+        // GameObject root = new GameObject(); 
+        // root.transform.position = place.position;
+        // root.transform.localPosition = place.position;
+
+        // // get the wrist bone 
+        // foreach(KeyValuePair<Transform, Transform> entry in boneMap)
+        // {
+        //     if((entry.Value.name == "handDummy")||(entry.Value.name == "AllanHandScanRigged")){
+        //         // Debug.Log("Found root: " + entry.Value.name);
+        //         root.transform.position = entry.Value.position;
+        //         root.transform.rotation = entry.Value.rotation;
+        //         root.transform.localPosition = entry.Value.position;
+        //         root.transform.localRotation = entry.Value.rotation;
+        //         break; 
+        //     }
+        // }
+
+        // foreach (Transform targetBone in newDummyHand.gameObject.GetComponentsInChildren<Transform>())
+        // {
+        //     if(allPoses[poseName].ContainsKey(targetBone.name)){
+        //         targetBone.position = root.transform.TransformPoint(allPoses[poseName][targetBone.name].position);
+        //         targetBone.rotation = allPoses[poseName][targetBone.name].rotation;
+        //     }
+        // }
         foreach (Transform targetBone in newDummyHand.gameObject.GetComponentsInChildren<Transform>())
         {
             if(allPoses[poseName].ContainsKey(targetBone.name)){
@@ -48,8 +75,7 @@ public class HandDummy : MonoBehaviour
                 targetBone.rotation = allPoses[poseName][targetBone.name].rotation;
             }
         }
-        Transform place = placeHolder.transform.GetChild(placei);
-        Vector3 offset = new Vector3(0, (float) 0.1, 0);
+        
         newDummyHand.gameObject.transform.position = place.position + offset + manualOffset;
         newDummyHand.gameObject.transform.rotation = place.rotation;
         newDummyHand.gameObject.transform.Rotate(0,90,-90);
