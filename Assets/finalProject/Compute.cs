@@ -32,11 +32,12 @@ public class Compute : MonoBehaviour
     int saveCount = 0; 
     string mode = ""; 
     float timer = 0.0f;
-
+    bool loadedWord = true;
+    string wordToTranslate = "SALSAS";
+    int wordToTranslatei = 0;
     // references
     // https://www.youtube.com/watch?v=lBzwUKQ3tbw
     
-
     // Start is called before the first frame update
     void Start()
     {
@@ -44,8 +45,6 @@ public class Compute : MonoBehaviour
         targetModel = handLinkScript.targetModel;
         // generate text in create visuals 
         createVisuals.Start();
-        // textInput.SetActive(false); 
-        // keyboard.gameObject.SetActive(true); 
         keyboard.OnKeyboardHidden();
     }
 
@@ -93,6 +92,13 @@ public class Compute : MonoBehaviour
                 mode = "translate";
                 keyboard.OnKeyboardHidden();
                 timer = 0;
+            }
+            else if(Input.GetKeyDown(KeyCode.Keypad4) || Input.GetKeyDown("4")){
+                mode = "train";
+                keyboard.OnKeyboardHidden();
+                timer = 0;
+                loadedWord = false;
+                wordToTranslatei = 0;
             }
             else if(Input.GetKeyDown(KeyCode.Return)){
                 mode = ""; 
@@ -164,6 +170,39 @@ public class Compute : MonoBehaviour
                 textMode.GetComponentInChildren<TMP_Text>().text = "In mode 'translate'\nPress 'return' to return to the previous menu!";
             }
         }
+        else if(mode == "train"){
+            timer += Time.deltaTime;
+            if(loadedWord == false){
+                loadAll();
+                handDummy.displayHand(wordToTranslate[0].ToString());
+                handDummy.displayHand(wordToTranslate[1].ToString());
+                handDummy.displayHand(wordToTranslate[2].ToString());
+                handDummy.displayHand(wordToTranslate[3].ToString());
+                handDummy.displayHand(wordToTranslate[4].ToString());
+                handDummy.displayHand(wordToTranslate[5].ToString());
+                loadedWord = true;
+            }
+            // for translate mode - only check every n milliseconds
+            if(timer > 2.0) {
+                timer = 0; 
+                // loadAll();
+                string poseFound = compareAll();
+                if(wordToTranslatei >= wordToTranslate.Length){
+                    wordToTranslatei = 0;
+                }
+                if(poseFound == wordToTranslate[wordToTranslatei].ToString()){
+                    // update output text 
+                    updateTextOutput(poseFound); 
+                    wordToTranslatei++;
+                }
+            }
+            else if(Input.GetKeyDown(KeyCode.Return)){
+                mode = ""; 
+            }
+            else{
+                textMode.GetComponentInChildren<TMP_Text>().text = "In mode 'train'\nPress 'return' to return to the previous menu!";
+            }
+        }
     }
     bool save(string fname){
         
@@ -227,7 +266,14 @@ public class Compute : MonoBehaviour
         float del = 0;
         foreach(KeyValuePair<string, BoneData> entry in onePose0)
         {
-            float d = (float) Math.Pow(Vector3.Distance(entry.Value.localPosition, onePose1[entry.Key].localPosition), 2);
+            float d;
+            if(entry.Key == "handDummy"){
+                // the root has a different name for the current pose (AllanHandScanRigged) than the dummyHand
+                d = (float) Math.Pow(Vector3.Distance(entry.Value.localPosition, onePose1["AllanHandScanRigged"].localPosition), 2);
+            }
+            else{
+                d = (float) Math.Pow(Vector3.Distance(entry.Value.localPosition, onePose1[entry.Key].localPosition), 2);
+            }
             del += d; 
         }
         // Debug.Log("DEL: " + del); 
