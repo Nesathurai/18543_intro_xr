@@ -35,6 +35,11 @@ public class Compute : MonoBehaviour
     bool loadedWord = true;
     string wordToTranslate = "SALSAS";
     int wordToTranslatei = 0;
+    public GameObject saveButton;
+    public GameObject compareButton;
+    public GameObject translateButton;
+    public GameObject trainButton;
+    public GameObject resetButton;
     // references
     // https://www.youtube.com/watch?v=lBzwUKQ3tbw
     
@@ -46,6 +51,22 @@ public class Compute : MonoBehaviour
         // generate text in create visuals 
         createVisuals.Start();
         keyboard.OnKeyboardHidden();
+    }
+
+    public void saveMode(){
+        mode = "save";
+    }
+    public void compareMode(){
+        mode = "compare";
+    }
+    public void translateMode(){
+        mode = "translate";
+    }
+    public void trainMode(){
+        mode = "train";
+    }
+    public void resetMode(){
+        mode = "reset";
     }
 
     // Update is called once per frame
