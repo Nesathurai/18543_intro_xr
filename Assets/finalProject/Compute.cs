@@ -27,12 +27,12 @@ public class Compute : MonoBehaviour
     public HandDummy handDummy; 
     public OVRCameraRig ovrCameraRig;
     public Oculus.Interaction.Input.FromOVRHandDataSource fromovrhanddatasource; 
-    public OVRVirtualKeyboard keyboard; 
+    // public OVRVirtualKeyboard keyboard; 
     private GameObject targetModel; // Reference to the model you want to copy bone rotations to.
     int saveCount = 0; 
     string mode = ""; 
     float timer = 0.0f;
-    bool loadedWord = true;
+    bool loadedWord = false;
     string wordToTranslate = "SALSAS";
     int wordToTranslatei = 0;
     public Toggle saveButton;
@@ -53,7 +53,7 @@ public class Compute : MonoBehaviour
         targetModel = handLinkScript.targetModel;
         // generate text in create visuals 
         createVisuals.Start();
-        keyboard.OnKeyboardHidden();
+        // keyboard.OnKeyboardHidden();
         
     }
 
@@ -82,60 +82,69 @@ public class Compute : MonoBehaviour
         }
         // create two modes: one mode to save, one mode to recognize (also a clear button) 
         // when mode is equal to "", then the mode can change / at default menu 
-        if(mode == ""){
+        // if(mode == ""){
             // TODO: add names / dialog showing modes 
             // enter save mode
-            if(Input.GetKeyDown(KeyCode.Keypad1) || Input.GetKeyDown("1") || saveButton.isOn){
-                mode = "save";
-                // textInput.SetActive(true); 
-                keyboard.OnKeyboardShown();
-                // textInput.GetComponentInChildren<TMP_Text>().text = keyboard.TextCommitField.text;
-            }
-            // enter compare mode
-            else if(Input.GetKeyDown(KeyCode.Keypad2) || Input.GetKeyDown("2") || compareButton.isOn){
-                mode = "compare";
-                keyboard.OnKeyboardHidden();
-            }
-            else if(Input.GetKeyDown(KeyCode.Keypad3) || Input.GetKeyDown("3") || translateButton.isOn){
-                mode = "translate";
-                keyboard.OnKeyboardHidden();
-                timer = 0;
-            }
-            else if(Input.GetKeyDown(KeyCode.Keypad4) || Input.GetKeyDown("4") || trainButton.isOn){
-                mode = "train";
-                keyboard.OnKeyboardHidden();
-                timer = 0;
-                loadedWord = false;
-                wordToTranslatei = 0;
-            }
-            else if(Input.GetKeyDown(KeyCode.Return) || resetButton.isOn){
-                mode = ""; 
-                // reset scene without having to exit 
-                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-            }
-            else if(salsasButton.isOn){
-                wordToTranslate = "SALSAS";
-            }
-            else if(simpleButton.isOn){
-                wordToTranslate = "SIMPLE";
-            }
-            else if(saladsButton.isOn){
-                wordToTranslate = "SALADS";
-            }
-            else{
-                textMode.GetComponentInChildren<TMP_Text>().text = "No Mode";
-                keyboard.OnKeyboardHidden();
-            }
+        if(Input.GetKeyDown(KeyCode.Keypad1) || Input.GetKeyDown("1") || saveButton.isOn){
+            mode = "save";
+            // textInput.SetActive(true); 
+            // keyboard.OnKeyboardShown();
+            // textInput.GetComponentInChildren<TMP_Text>().text = keyboard.TextCommitField.text;
+            // loadedWord = false;
         }
-        else if(mode == "save"){
+        // enter compare mode
+        else if(Input.GetKeyDown(KeyCode.Keypad2) || Input.GetKeyDown("2") || compareButton.isOn){
+            mode = "compare";
+            // keyboard.OnKeyboardHidden();
+            // loadedWord = false;
+        }
+        else if(Input.GetKeyDown(KeyCode.Keypad3) || Input.GetKeyDown("3") || translateButton.isOn){
+            mode = "translate";
+            // keyboard.OnKeyboardHidden();
+            // loadedWord = false;
+            // timer = 0;
+        }
+        else if(Input.GetKeyDown(KeyCode.Keypad4) || Input.GetKeyDown("4") || trainButton.isOn){
+            mode = "train";
+            // keyboard.OnKeyboardHidden();
+            // timer = 0;
+            // loadedWord = false;
+            // wordToTranslatei = 0;
+        }
+        else if(Input.GetKeyDown(KeyCode.Return) || resetButton.isOn){
+            mode = ""; 
+            loadedWord = false;
+            timer = 0;
+            wordToTranslatei = 0;
+            // reset scene without having to exit 
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        }
+        else if(salsasButton.isOn){
+            loadedWord = false;
+            wordToTranslate = "SALSAS";
+        }
+        else if(simpleButton.isOn){
+            loadedWord = false;
+            wordToTranslate = "SIMPLE";
+        }
+        else if(saladsButton.isOn){
+            loadedWord = false;
+            wordToTranslate = "SALADS";
+        }
+        else{
+            textMode.GetComponentInChildren<TMP_Text>().text = "No Mode";
+            // keyboard.OnKeyboardHidden();
+        }
+        // }
+        if(mode == "save"){
             // save current pose 
             if(Input.GetKeyDown("space")){
-                if(keyboard.TextCommitField.text.Length == 0){
-                    save("");
-                }
-                else{
-                    save(keyboard.TextCommitField.text); 
-                }
+                // if(keyboard.TextCommitField.text.Length == 0){
+                save("");
+                // }
+                // else{
+                //     save(keyboard.TextCommitField.text); 
+                // }
             }
             else if(Input.GetKeyDown(KeyCode.Return)){
                 mode = ""; 
@@ -198,12 +207,16 @@ public class Compute : MonoBehaviour
                 handDummy.displayHand(wordToTranslate[4].ToString());
                 handDummy.displayHand(wordToTranslate[5].ToString());
                 loadedWord = true;
+                Debug.Log("loaded word");
             }
             // for translate mode - only check every n milliseconds
             if(timer > 2.0) {
                 timer = 0; 
+                Debug.Log("in loop " );
                 // loadAll();
+
                 string poseFound = compareAll();
+                Debug.Log("detecting pose + " + poseFound);
                 if(wordToTranslatei >= wordToTranslate.Length){
                     wordToTranslatei = 0;
                 }

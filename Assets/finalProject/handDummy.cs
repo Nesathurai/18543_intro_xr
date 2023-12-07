@@ -44,7 +44,7 @@ public class HandDummy : MonoBehaviour
         GameObject newDummyHand = newDummyHands[placei]; 
         Transform place = placeHolder.transform.GetChild(placei);
         // Vector3 offset = new Vector3((float)-0.1, (float) 0.1, 0);
-        Vector3 offset = new Vector3((float)0.0, (float)-1.5, 0);
+        Vector3 offset = new Vector3((float)0.0, (float)-1.25, 0);
         // // get the root, then do a point transform (exact opposite of inverse transform point)
         GameObject root = new GameObject(); 
         // root.transform.position = place.position;
