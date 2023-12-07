@@ -1,12 +1,12 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using System;
 using System.Collections.Generic; 
 using System.Collections;
 using System.IO;
 using Newtonsoft.Json;
 using TMPro;
-
 public class Compute : MonoBehaviour
 {
     public BoneRotationCopier handLinkScript;
@@ -35,11 +35,11 @@ public class Compute : MonoBehaviour
     bool loadedWord = true;
     string wordToTranslate = "SALSAS";
     int wordToTranslatei = 0;
-    public GameObject saveButton;
-    public GameObject compareButton;
-    public GameObject translateButton;
-    public GameObject trainButton;
-    public GameObject resetButton;
+    public Toggle saveButton;
+    public Toggle compareButton;
+    public Toggle translateButton;
+    public Toggle trainButton;
+    public Toggle resetButton;
     // references
     // https://www.youtube.com/watch?v=lBzwUKQ3tbw
     
@@ -51,22 +51,7 @@ public class Compute : MonoBehaviour
         // generate text in create visuals 
         createVisuals.Start();
         keyboard.OnKeyboardHidden();
-    }
-
-    public void saveMode(){
-        mode = "save";
-    }
-    public void compareMode(){
-        mode = "compare";
-    }
-    public void translateMode(){
-        mode = "translate";
-    }
-    public void trainMode(){
-        mode = "train";
-    }
-    public void resetMode(){
-        mode = "reset";
+        
     }
 
     // Update is called once per frame
@@ -92,36 +77,35 @@ public class Compute : MonoBehaviour
             fromovrhanddatasource.manualOffset += new Vector3((float)-0.1, (float)0.0, (float)0.0);
             handDummy.manualOffset += new Vector3((float)-0.1, (float)0.0, (float)0.0);
         }
-
         // create two modes: one mode to save, one mode to recognize (also a clear button) 
         // when mode is equal to "", then the mode can change / at default menu 
         if(mode == ""){
             // TODO: add names / dialog showing modes 
             // enter save mode
-            if(Input.GetKeyDown(KeyCode.Keypad1) || Input.GetKeyDown("1")){
+            if(Input.GetKeyDown(KeyCode.Keypad1) || Input.GetKeyDown("1") || saveButton.isOn){
                 mode = "save";
                 // textInput.SetActive(true); 
                 keyboard.OnKeyboardShown();
                 // textInput.GetComponentInChildren<TMP_Text>().text = keyboard.TextCommitField.text;
             }
             // enter compare mode
-            else if(Input.GetKeyDown(KeyCode.Keypad2) || Input.GetKeyDown("2")){
+            else if(Input.GetKeyDown(KeyCode.Keypad2) || Input.GetKeyDown("2") || compareButton.isOn){
                 mode = "compare";
                 keyboard.OnKeyboardHidden();
             }
-            else if(Input.GetKeyDown(KeyCode.Keypad3) || Input.GetKeyDown("3")){
+            else if(Input.GetKeyDown(KeyCode.Keypad3) || Input.GetKeyDown("3") || translateButton.isOn){
                 mode = "translate";
                 keyboard.OnKeyboardHidden();
                 timer = 0;
             }
-            else if(Input.GetKeyDown(KeyCode.Keypad4) || Input.GetKeyDown("4")){
+            else if(Input.GetKeyDown(KeyCode.Keypad4) || Input.GetKeyDown("4") || trainButton.isOn){
                 mode = "train";
                 keyboard.OnKeyboardHidden();
                 timer = 0;
                 loadedWord = false;
                 wordToTranslatei = 0;
             }
-            else if(Input.GetKeyDown(KeyCode.Return)){
+            else if(Input.GetKeyDown(KeyCode.Return) || resetButton.isOn){
                 mode = ""; 
                 // reset scene without having to exit 
                 SceneManager.LoadScene(SceneManager.GetActiveScene().name);
