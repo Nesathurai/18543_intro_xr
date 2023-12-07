@@ -42,6 +42,7 @@ public class Compute : MonoBehaviour
     public Toggle resetButton;
     public Toggle salsasButton;
     public Toggle simpleButton;
+    public Toggle saladsButton;
     // references
     // https://www.youtube.com/watch?v=lBzwUKQ3tbw
     
@@ -117,6 +118,9 @@ public class Compute : MonoBehaviour
             }
             else if(simpleButton.isOn){
                 wordToTranslate = "SIMPLE";
+            }
+            else if(saladsButton.isOn){
+                wordToTranslate = "SALADS";
             }
             else{
                 textMode.GetComponentInChildren<TMP_Text>().text = "No Mode";
