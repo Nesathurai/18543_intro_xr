@@ -125,7 +125,7 @@ public class Compute : MonoBehaviour
         }
         else if(simpleButton.isOn){
             loadedWord = false;
-            wordToTranslate = "SIMPLE";
+            wordToTranslate = "SMILES";
         }
         else if(saladsButton.isOn){
             loadedWord = false;
@@ -247,8 +247,8 @@ public class Compute : MonoBehaviour
                 // Debug.Log("Found root: " + entry.Value.name);
                 root.transform.position = entry.Value.position;
                 root.transform.rotation = entry.Value.rotation;
-                root.transform.localPosition = entry.Value.position;
-                root.transform.localRotation = entry.Value.rotation;
+                // root.transform.localPosition = entry.Value.position;
+                // root.transform.localRotation = entry.Value.rotation;
                 break; 
             }
         }
