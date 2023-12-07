@@ -40,6 +40,8 @@ public class Compute : MonoBehaviour
     public Toggle translateButton;
     public Toggle trainButton;
     public Toggle resetButton;
+    public Toggle salsasButton;
+    public Toggle simpleButton;
     // references
     // https://www.youtube.com/watch?v=lBzwUKQ3tbw
     
@@ -110,8 +112,14 @@ public class Compute : MonoBehaviour
                 // reset scene without having to exit 
                 SceneManager.LoadScene(SceneManager.GetActiveScene().name);
             }
+            else if(salsasButton.isOn){
+                wordToTranslate = "SALSAS";
+            }
+            else if(simpleButton.isOn){
+                wordToTranslate = "SIMPLE";
+            }
             else{
-                textMode.GetComponentInChildren<TMP_Text>().text = "Press '1' to enter 'save' mode\nPress '2' to enter 'compare' mode\nPress '3' to enter 'translate' mode\nPress 'return' to reset the environment!";
+                textMode.GetComponentInChildren<TMP_Text>().text = "No Mode";
                 keyboard.OnKeyboardHidden();
             }
         }
@@ -129,7 +137,7 @@ public class Compute : MonoBehaviour
                 mode = ""; 
             }
             else{
-                textMode.GetComponentInChildren<TMP_Text>().text = "In mode 'save'\nPress 'space' to save pose!\nPress 'return' to return to the previous menu!";
+                textMode.GetComponentInChildren<TMP_Text>().text = "Save Mode";
             }
         }
         else if(mode == "compare"){
@@ -151,7 +159,7 @@ public class Compute : MonoBehaviour
                 mode = ""; 
             }
             else{
-                textMode.GetComponentInChildren<TMP_Text>().text = "In mode 'compare'\nPress 'space' to compare pose!\nPress 'return' to return to the previous menu!";
+                textMode.GetComponentInChildren<TMP_Text>().text = "Compare Mode";
             }
         }
         else if(mode == "translate"){
@@ -172,7 +180,7 @@ public class Compute : MonoBehaviour
                 mode = ""; 
             }
             else{
-                textMode.GetComponentInChildren<TMP_Text>().text = "In mode 'translate'\nPress 'return' to return to the previous menu!";
+                textMode.GetComponentInChildren<TMP_Text>().text = "Translate Mode";
             }
         }
         else if(mode == "train"){
@@ -205,7 +213,7 @@ public class Compute : MonoBehaviour
                 mode = ""; 
             }
             else{
-                textMode.GetComponentInChildren<TMP_Text>().text = "In mode 'train'\nPress 'return' to return to the previous menu!";
+                textMode.GetComponentInChildren<TMP_Text>().text = "Train Mode";
             }
         }
     }
